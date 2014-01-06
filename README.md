@@ -1,7 +1,7 @@
 Forcecraft
 ==========
 
-This Minecraft mod visualizes Salesforce Accounts, Opportunities and Contacts. Forcecraft adds a new dimension, accessed via the `/login` command, where each Account in your Salesforce org is represented by a building, with a level for each Opportunity.
+This Minecraft mod visualizes [Salesforce](https://www.salesforce.com/crm/) Accounts, Opportunities and Contacts. Forcecraft adds a new dimension to Minecraft, where each Account in your Salesforce environment (aka 'org') is represented by a building, comprising a level for each Opportunity associated with that Account.
 
 ![Forcecraft](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft.png)
 
@@ -15,13 +15,12 @@ Each Salesforce Contact is represented by a Villager-derived entity, with the Co
 
 If an Opportunity's Stage Name is updated to 'Closed Won', a Contact from the associated Account will teleport to the player and give the player items to the 'value' of the opportunity.
 
-You may return to the default 'Overworld' dimension via the '/logout' command.
-
 Pre-requisites
 --------------
 
 * [Minecraft](https://minecraft.net/) 1.6.4
 * [Minecraft Forge](http://files.minecraftforge.net/) 1.6.4. Follow the [installation process](http://www.minecraftforge.net/wiki/Installation/Source).
+* A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
 Installation
 ------------
@@ -42,7 +41,7 @@ In Eclipse, you can set these in Project | Properties | Run/Debug Settings | Cli
 Running the Mod
 ---------------
 
-The easiest way to do this is to point an IDE at Forge, as documented in the [installation process](http://www.minecraftforge.net/wiki/Installation/Source). If all is well, you should see Forcecraft listed on the Mods screen. Start Minecraft as a single player and create a new world, in creative mode.
+The easiest way to do this is to point an IDE at Forge, as documented in the [Forge installation process](http://www.minecraftforge.net/wiki/Installation/Source). If all is well, you should see Forcecraft listed on the Mods screen. Start Minecraft as a single player and create a new world, in creative mode.
 
 ![Create New World](http://metadaddy-sfdc.github.io/Forcecraft/CreateNewWorld.png)
 
