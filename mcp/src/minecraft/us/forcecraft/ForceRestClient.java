@@ -155,14 +155,15 @@ public class ForceRestClient {
             System.out.println("executing GET " + httpget.getURI());
 
             String responseBody = httpclient.execute(httpget, responseHandler);
-            System.out.println("----------------------------------------");
             root = parser.parse(responseBody);
-            System.out.println(formatter.format(root));
-            System.out.println("----------------------------------------");
             
             for (JsonNode field : root.getNode("fields").getElements()) {
             	if (field.getStringValue("name").equals("StageName")) {
-            		return field.getNode("picklistValues").getElements();
+            		JsonNode picklistValues = field.getNode("picklistValues");
+                    System.out.println("----------------------------------------");
+                    System.out.println(formatter.format(picklistValues.getRootNode()));
+                    System.out.println("----------------------------------------");
+            		return picklistValues.getElements();
             	}
             }
         	

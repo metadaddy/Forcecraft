@@ -43,7 +43,7 @@ public class StreamingClient {
 	private static final int READ_TIMEOUT = 120 * 1000; // milliseconds
 
 	public static void subscribe(final String endpoint, final String sessionid) throws Exception {
-		System.out.println("Running streaming client example....");
+		System.out.println("Connecting to Streaming API....");
 		final BayeuxClient client = makeClient(endpoint, sessionid);
 		client.getChannel(Channel.META_HANDSHAKE).addListener
 		(new ClientSessionChannel.MessageListener() {
@@ -54,6 +54,7 @@ public class StreamingClient {
 					String error = (String) message.get("error");
 					if (error != null) {
 						System.out.println("Error during HANDSHAKE: " + error);
+						// Yeah - we really need some error handling...
 //						System.out.println("Exiting...");
 //						System.exit(1);
 					}
@@ -188,8 +189,7 @@ public class StreamingClient {
 		httpClient.setConnectTimeout(CONNECTION_TIMEOUT);
 		httpClient.setTimeout(READ_TIMEOUT);
 		httpClient.start();
-		System.out.println("Login successful!\nEndpoint: " + endpoint
-				+ "\nSessionid=" + sessionid);
+
 		Map<String, Object> options = new HashMap<String, Object>();
 		options.put(ClientTransport.TIMEOUT_OPTION, READ_TIMEOUT);
 		LongPollingTransport transport = new LongPollingTransport(
