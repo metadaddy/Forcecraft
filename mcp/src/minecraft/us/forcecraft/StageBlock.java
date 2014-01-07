@@ -70,7 +70,11 @@ public class StageBlock extends BlockContainer
                 	}
                 	z--;
                 }
-                world.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(world));
+                // Don't schedule an update if we're processing a message from Salesforce -
+                // don't want a streaming update to cause a post back to Salesforce!
+                if (!StreamingClient.inMessage) {
+                	world.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(world));
+                }
             }
             else if (!hasPower && isAlreadyOn)
             {
@@ -94,7 +98,6 @@ public class StageBlock extends BlockContainer
         {
         	TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)tileentity;
             tileentitystageblock.setOpportunityStage(world);
-            //par1World.func_96440_m(par2, par3, par4, this.blockID);
         }
     }
 }
