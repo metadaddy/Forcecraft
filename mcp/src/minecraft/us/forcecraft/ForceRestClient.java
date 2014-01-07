@@ -27,6 +27,7 @@ import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
+import static argo.jdom.JsonNodeFactories.*;
 
 /*
  * Methods for interacting with the Force.com REST API
@@ -91,7 +92,7 @@ public class ForceRestClient {
         			"(SELECT Id, Name FROM Account.Contacts) "+
     				"FROM Account";
             HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-            		"/services/data/v20.0/query?q="+URLEncoder.encode(query, "UTF-8"));
+            		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
             
             httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
             
@@ -224,8 +225,101 @@ public class ForceRestClient {
             		"/services/data/v29.0/sobjects/Opportunity/"+id+"?_HttpMethod=PATCH");
             
             httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
-            httppost.setEntity(new StringEntity(
-                    "{\"StageName\":\""+stage+"\"}",
+            httppost.setEntity(new StringEntity(formatter.format(object(field("StageName", string(stage)))),
+                        ContentType.create("application/json", Consts.UTF_8)));
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        return response.getStatusLine().toString();
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+
+            System.out.println("executing POST " + httppost.getURI());
+
+            String responseBody = httpclient.execute(httppost, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+            System.out.println("----------------------------------------");
+		} catch (Exception e) {
+			e.printStackTrace();
+        } finally {
+        	try {
+        		httpclient.close();
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+        }
+	}
+
+	public boolean streamingTopicExists() throws Exception {
+		JsonRootNode root = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+			System.out.println("Checking for PushTopic "+StreamingClient.TOPIC_NAME);
+			
+        	String query = "SELECT Id FROM PushTopic WHERE Name = '"+StreamingClient.TOPIC_NAME+"'";
+            HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
+            
+            httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        HttpEntity entity = response.getEntity();
+                        return entity != null ? EntityUtils.toString(entity) : null;
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+
+            System.out.println("executing GET " + httpget.getURI());
+
+            String responseBody = httpclient.execute(httpget, responseHandler);
+            System.out.println("----------------------------------------");
+            root = parser.parse(responseBody);
+            System.out.println(formatter.format(root));
+            System.out.println("----------------------------------------");
+        	
+        } finally {
+            httpclient.close();
+        }
+        
+        return (root != null && root.getNode("records").getElements().size() > 0);	
+	}
+
+	public void createStreamingTopic() throws Exception {
+		JsonRootNode root = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+			System.out.println("Creating PushTopic "+StreamingClient.TOPIC_NAME);
+			
+        	HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/sobjects/PushTopic");
+            
+            httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            JsonRootNode json = object(
+                field("Name", string(StreamingClient.TOPIC_NAME)),
+                field("Query", string(StreamingClient.TOPIC_QUERY)),
+                field("ApiVersion", string(StreamingClient.API_VERSION))
+            );
+            httppost.setEntity(new StringEntity(formatter.format(json),
                     ContentType.create("application/json", Consts.UTF_8)));
 
             // Create a custom response handler
@@ -237,6 +331,8 @@ public class ForceRestClient {
                     if (status >= 200 && status < 300) {
                         return response.getStatusLine().toString();
                     } else {
+                    	HttpEntity entity = response.getEntity();
+                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : null));
                         throw new ClientProtocolException("Unexpected response status: " + status);
                     }
                 }

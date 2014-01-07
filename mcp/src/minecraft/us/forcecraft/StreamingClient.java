@@ -39,8 +39,11 @@ import java.util.Map;
  * against the Salesforce Streaming API with generic notifications.
  **/
 public class StreamingClient {
-	private static final String CHANNEL = "/topic/OpportunitiesChannel";
-	private static final String STREAMING_ENDPOINT_URI = "/cometd/29.0";
+	public static final String TOPIC_NAME = "ForcecraftOpportunities";
+	public static final String TOPIC_QUERY = "SELECT Id, Name, Amount, StageName, AccountId FROM Opportunity";
+	public static final String API_VERSION = "29.0";
+	private static final String CHANNEL = "/topic/"+TOPIC_NAME;
+	private static final String STREAMING_ENDPOINT_URI = "/cometd/"+API_VERSION;
 	private static final int CONNECTION_TIMEOUT = 20 * 1000;  // milliseconds
 	private static final int READ_TIMEOUT = 120 * 1000; // milliseconds
 	

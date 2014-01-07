@@ -70,6 +70,10 @@ public class Forcecraft {
 			
 			this.accounts = client.getAccounts();
 			this.stages = client.getStages();
+			
+			if (!client.streamingTopicExists()) {
+				client.createStreamingTopic();
+			}
 								
 			StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), client.oauth.getStringValue("access_token"));
 		} catch (Exception e) {
