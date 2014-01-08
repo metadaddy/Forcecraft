@@ -48,7 +48,7 @@ public class TileEntityStageBlock extends TileEntity
     public void writeToNBT(NBTTagCompound par1NBTTagCompound)
     {
         super.writeToNBT(par1NBTTagCompound);
-        par1NBTTagCompound.setString("Stage", this.stage);
+        par1NBTTagCompound.setString(Forcecraft.STAGE_BLOCK_NAME, this.stage);
         par1NBTTagCompound.setString("OpportunityId", this.opportunityId);
     }
 
@@ -59,7 +59,7 @@ public class TileEntityStageBlock extends TileEntity
     {
         super.readFromNBT(par1NBTTagCompound);
         setOpportunityStage(par1NBTTagCompound.getString("OpportunityId"), 
-        		par1NBTTagCompound.getString("Stage"));
+        		par1NBTTagCompound.getString(Forcecraft.STAGE_BLOCK_NAME));
     }
 
     /**

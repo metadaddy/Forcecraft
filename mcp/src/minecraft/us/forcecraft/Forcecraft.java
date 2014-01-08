@@ -28,7 +28,17 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 @NetworkMod(clientSideRequired=true)
 public class Forcecraft {
 	// Mod constants
-	public static int dimensionId = 7;
+	public static final int DIMENSION_ID_DEFAULT = 7;
+	public static int dimensionId = DIMENSION_ID_DEFAULT;
+	public static final int STAGE_BLOCK_ID_DEFAULT = 3500;
+	public static int stageBlockId = STAGE_BLOCK_ID_DEFAULT;
+	
+	public static final String STAGE_BLOCK_NAME = "stage";
+	public static final String DIMENSION_ID_NAME = "dimensionId";
+	public static final String LOGIN_HOST_KEY = "loginHost";
+	public static final String USERNAME_KEY = "username";
+	public static final String PASSWORD_KEY = "password";
+
 	public static int groundLevel = 8;
 	
 	private ForcecraftTeleporter teleporter = null;
@@ -36,6 +46,9 @@ public class Forcecraft {
 	public JsonNode accounts = null;
 	public List<JsonNode> stages = null;
 	
+	public static String loginHost;
+	public static String username;
+	public static String password;	
 	public ForceRestClient client = new ForceRestClient();
 	
 	// Forge Mod instance
@@ -62,9 +75,11 @@ public class Forcecraft {
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
+		ConfigHandler.init(event.getSuggestedConfigurationFile());
+		
 		// Stub Method
 		try {
-			client.login(System.getenv("SF_USERNAME"), System.getenv("SF_PASSWORD"));
+			client.login(Forcecraft.loginHost, Forcecraft.username, Forcecraft.password);
 
 			client.getId();
 			
@@ -82,16 +97,16 @@ public class Forcecraft {
 		}
 		
 		// StageBlock is a special stone block associated with an opportunity stage
-		stageBlock = new StageBlock(500, Material.rock)
+		stageBlock = new StageBlock(stageBlockId, Material.rock)
         	.setHardness(0.5F)
         	.setStepSound(Block.soundStoneFootstep)
-        	.setUnlocalizedName("stage")
+        	.setUnlocalizedName(STAGE_BLOCK_NAME)
         	.setCreativeTab(CreativeTabs.tabBlock)
         	.setTextureName("stone");
-		LanguageRegistry.instance().addStringLocalization("stage", "en_US",  "Stage");
-        GameRegistry.registerBlock(stageBlock, "stage");
+		LanguageRegistry.instance().addStringLocalization(STAGE_BLOCK_NAME, "en_US",  "Stage");
+        GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
         
-        GameRegistry.registerTileEntity(TileEntityStageBlock.class, "Stage");
+        GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
 	}
 
 	@EventHandler

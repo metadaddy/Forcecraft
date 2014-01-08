@@ -38,12 +38,12 @@ public class ForceRestClient {
 	private static PrettyJsonFormatter formatter = new PrettyJsonFormatter();
 	JsonNode oauth;
 
-    void login(String username, String password) throws Exception {
+    void login(String loginHost, String username, String password) throws Exception {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-			//player.addChatMessage("Logging in to Salesforce as "+username);
+			System.out.println("Logging in to "+loginHost+" as "+username);
 			
-            HttpPost httpPost = new HttpPost("https://"+System.getenv("SF_LOGINHOST")+"/services/oauth2/token");
+            HttpPost httpPost = new HttpPost("https://"+loginHost+"/services/oauth2/token");
 
             List <NameValuePair> nvps = new ArrayList <NameValuePair>();
             nvps.add(new BasicNameValuePair("grant_type", "password"));

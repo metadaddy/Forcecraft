@@ -1,3 +1,4 @@
+.DS_Store
 MinecraftForge-Changelog.txt
 MinecraftForge-Credits.txt
 MinecraftForge-License.txt
@@ -31,6 +32,7 @@ mcp/recompile.bat
 mcp/recompile.sh
 mcp/reformat.bat
 mcp/reformat.sh
+mcp/reobf/
 mcp/reobfuscate.bat
 mcp/reobfuscate.sh
 mcp/reobfuscate_srg.bat

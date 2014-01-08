@@ -115,7 +115,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
 		    					metadata = 0x1; // Block is 'on'
 		    				}
-		    	    		world.setBlock(p, q, r, 500, metadata, 2);
+		    	    		world.setBlock(p, q, r, Forcecraft.stageBlockId, metadata, 2);
 		    	    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(p, q, r);
 		    	    		tileentitystageblock.setOpportunityStage(oppy.getStringValue("Id"), 
 		    	    				stages.get(10-z).getStringValue("label"));
