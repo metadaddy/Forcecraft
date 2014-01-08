@@ -15,6 +15,10 @@ Each Salesforce Contact is represented by a Villager-derived entity, with the Co
 
 If an Opportunity's Stage Name is updated to 'Closed Won', a Contact from the associated Account will teleport to the player and give the player items to the 'value' of the opportunity. If, on the other hand, an Opportunity's Stage Name is updated to 'Closed Lost', the weather will take a turn for the worse!
 
+Take a look at the mod in action:
+
+[![YouTube video](http://img.youtube.com/vi/eb3GgM1o_8I/0.jpg)](http://www.youtube.com/watch?v=eb3GgM1o_8I)
+
 Running the mod
 ---------------
 
