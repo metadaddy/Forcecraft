@@ -81,6 +81,8 @@ The easiest way to do this is to point an IDE at Forge, as documented in the [Fo
 
 In the Eclipse Project Explorer, open the Minecraft/lib folder, select all the listed jars, right click, and select 'Build Path | Add to Build Path'. Eclipse should now build the project with no errors (but possibly a handful of warnings).
 
+![Add jars to build path](http://metadaddy-sfdc.github.io/Forcecraft/AddJarsToBuildPath.png)
+
 ### Debugging the mod
 
 Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/forge/mcp/jars/config/Forcecraft.cfg`.
