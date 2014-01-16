@@ -1,16 +1,19 @@
 package us.forcecraft;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import cpw.mods.fml.common.Loader;
 import net.minecraft.entity.passive.EntityVillager;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.village.MerchantRecipeList;
+import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.world.World;
 
 public class EntityContact extends EntityVillager {
@@ -81,5 +84,43 @@ public class EntityContact extends EntityVillager {
 		}
 		
 		return l;
+	}
+	
+    /**
+     * Called when a player interacts with a mob. e.g. gets milk from a cow, gets into the saddle on a pig.
+     */
+    public boolean interact(EntityPlayer par1EntityPlayer)
+    {
+        if (this.isEntityAlive() && !par1EntityPlayer.isSneaking())
+        {
+            if (!this.worldObj.isRemote)
+            {
+            	displayChatterGUI((EntityPlayerMP)par1EntityPlayer);
+            }
+
+            return true;
+        }
+        else
+        {
+        	return false;
+        }
+    }
+
+	private void displayChatterGUI(EntityPlayerMP player) {
+		player.incrementWindowID();
+		
+        try
+        {
+            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
+            os.writeInt(player.currentWindowId);
+            os.writeObject(getCustomNameTag());
+            os.writeObject(Forcecraft.instance.client.getFeed(id));
+            player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CONTACT_CHANNEL, bytearrayoutputstream.toByteArray()));
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }
 	}
 }

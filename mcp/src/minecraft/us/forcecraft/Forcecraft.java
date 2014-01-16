@@ -20,12 +20,14 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
+import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
 @Mod(modid="Forcecraft", name="Forcecraft", version="0.1.0")
-@NetworkMod(clientSideRequired=true)
+@NetworkMod(clientSideRequired=true, 
+	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = PacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
 	public static final int DIMENSION_ID_DEFAULT = 7;
@@ -38,6 +40,7 @@ public class Forcecraft {
 	public static final String LOGIN_HOST_KEY = "loginHost";
 	public static final String USERNAME_KEY = "username";
 	public static final String PASSWORD_KEY = "password";
+	public static final String CONTACT_CHANNEL = "FC|Contact";
 
 	public static int groundLevel = 8;
 	

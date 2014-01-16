@@ -35,7 +35,7 @@ import static argo.jdom.JsonNodeFactories.*;
 
 public class ForceRestClient {
 	static JdomParser parser = new JdomParser();
-	private static PrettyJsonFormatter formatter = new PrettyJsonFormatter();
+	static PrettyJsonFormatter formatter = new PrettyJsonFormatter();
 	JsonNode oauth;
 
     void login(String loginHost, String username, String password) throws Exception {
@@ -356,4 +356,39 @@ public class ForceRestClient {
         }
 	}
 
+	String getFeed(String recordId) throws Exception {
+		String responseBody = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/chatter/feeds/record/"+recordId+"/feed-items");
+            
+            httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        HttpEntity entity = response.getEntity();
+                        return entity != null ? EntityUtils.toString(entity) : null;
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+
+            System.out.println("executing GET " + httpget.getURI());
+
+            responseBody = httpclient.execute(httpget, responseHandler);
+        } finally {
+            httpclient.close();
+        }
+        
+        return responseBody;
+	}
 }
