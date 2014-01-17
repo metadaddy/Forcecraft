@@ -66,11 +66,12 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		        JsonNode contact = contacts.get(i);
 				String id = contact.getStringValue("Id");
 		        EntityContact entityContact = new EntityContact(world, id);
-		        entityContact.setLocationAndAngles((double)((chunkX * 16) + ((i / STORY_HEIGHT) % 7) + 6) + 0.5D, 
-		        		(double)Forcecraft.groundLevel + ((i % height) * STORY_HEIGHT) + 1.0D, 
-		        		(double)((chunkZ * 16) + ((i / (STORY_HEIGHT * 7)) % 8) + 6) + 0.5D, 0.0F, 0.0F);
+		        double x = (double)((chunkX * 16) + ((i / STORY_HEIGHT) % 7) + 6) + 0.5D, 
+		               y = (double)Forcecraft.groundLevel + ((i % height) * STORY_HEIGHT) + 1.0D, 
+		               z = (double)((chunkZ * 16) + ((i / (STORY_HEIGHT * 7)) % 8) + 6) + 0.5D;
+		        entityContact.setLocationAndAngles(x, y, z, 0.0F, 0.0F);
 		        entityContact.setCustomNameTag(contact.getStringValue("Name"));
-		        System.out.println("Spawning contact "+entityContact.getCustomNameTag()+" at "+entityContact.getPosition(1.0F));
+		        System.out.println("Spawning contact "+entityContact.getCustomNameTag()+" at ("+x+", "+y+", "+z+")");
 		        world.spawnEntityInWorld(entityContact);
 			}
 		} catch (IllegalArgumentException iae) {
@@ -138,7 +139,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    			} else if (oppy != null && y==2 && x == 1 && z > 0 && z < 11) { // Stage sign
     		    		world.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
     		    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-    		            tileentitysign.signText = splitIntoLines(stages.get(10-z).getStringValue("label"), 16, 4);
+    		            tileentitysign.signText = splitIntoLines(stages.get(10-z).getStringValue("label"), 15, 4);
 	    			} else if (oppy != null && y==3 && x == 1 && z > 0 && z < 11) { // Stage lever
 	    				metadata = 0x1; // Face east
 	    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
@@ -155,7 +156,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
         	p = i+1; q = j+4; r = k+5;
     		world.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
     		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-            tileentitysign.signText = splitIntoLines(oppy.getStringValue("Name"), 16, 4);
+            tileentitysign.signText = splitIntoLines(oppy.getStringValue("Name"), 15, 4);
     	}
         
     	if (l == 0) {
@@ -163,7 +164,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
         	p = i+4; q = j+2; r = k-1;
     		world.setBlock(p, q, r, Block.signWall.blockID, 2 /* Face north */, 2);
     		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-            tileentitysign.signText = splitIntoLines(acct.getStringValue("Name"), 16, 4);
+            tileentitysign.signText = splitIntoLines(acct.getStringValue("Name"), 15, 4);
     	}
 	}
 

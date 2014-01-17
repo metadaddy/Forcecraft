@@ -10,4 +10,4 @@ do
 done
 
 # Need to bump version number...
-jar cvf ../../../Forcecraft-v0.1.0.jar *
+jar cvf ../../../Forcecraft-v0.1.1.jar *

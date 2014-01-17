@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import argo.jdom.JdomParser;
 
-public class LogoutCommand extends CommandBase {
+public class CommandLogout extends CommandBase {
 	private static JdomParser parser = new JdomParser();
 	
 	@Override

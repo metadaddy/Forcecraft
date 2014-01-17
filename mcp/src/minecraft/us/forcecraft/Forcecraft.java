@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
 import argo.jdom.JsonNode;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -24,8 +25,9 @@ import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.0")
+@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.1")
 @NetworkMod(clientSideRequired=true, 
 	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = PacketHandler.class)) 
 public class Forcecraft {
@@ -70,8 +72,8 @@ public class Forcecraft {
 		ICommandManager command = server.getCommandManager(); //Gets the command manager to use for server
 		ServerCommandManager serverCommand = ((ServerCommandManager) command); //Turns it into another form to use
 				
-		serverCommand.registerCommand(new LoginCommand());
-		serverCommand.registerCommand(new LogoutCommand());
+		serverCommand.registerCommand(new CommandLogin());
+		serverCommand.registerCommand(new CommandLogout());
 		
 		teleporter = new ForcecraftTeleporter(MinecraftServer.getServer().worldServerForDimension(dimensionId));
 	}
@@ -80,23 +82,24 @@ public class Forcecraft {
 	public void preInit(FMLPreInitializationEvent event) {
 		ConfigHandler.init(event.getSuggestedConfigurationFile());
 		
-		// Stub Method
-		try {
-			client.login(Forcecraft.loginHost, Forcecraft.username, Forcecraft.password);
-
-			client.getId();
-			
-			this.accounts = client.getAccounts();
-			this.stages = client.getStages();
-			
-			if (!client.streamingTopicExists()) {
-				client.createStreamingTopic();
+		if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
+			try {
+				client.login(Forcecraft.loginHost, Forcecraft.username, Forcecraft.password);
+	
+				client.getId();
+				
+				this.accounts = client.getAccounts();
+				this.stages = client.getStages();
+				
+				if (!client.streamingTopicExists()) {
+					client.createStreamingTopic();
+				}
+									
+				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), client.oauth.getStringValue("access_token"));				
+			} catch (Exception e) {
+				e.printStackTrace();
+				//player.addChatMessage("Exception: "+e.getMessage());
 			}
-								
-			StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), client.oauth.getStringValue("access_token"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			//player.addChatMessage("Exception: "+e.getMessage());
 		}
 		
 		// StageBlock is a special stone block associated with an opportunity stage

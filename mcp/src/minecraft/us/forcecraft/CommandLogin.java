@@ -30,7 +30,18 @@ import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
 import cpw.mods.fml.common.Loader;
 
-public class LoginCommand extends CommandBase {
+public class CommandLogin extends CommandBase {
+	@Override
+    public int getRequiredPermissionLevel()
+    {
+        return 0;
+    }
+	
+	@Override
+	public boolean canCommandSenderUseCommand(ICommandSender par1ICommandSender) {
+		return true;
+	}
+
 	@Override
 	public String getCommandName()
 	{

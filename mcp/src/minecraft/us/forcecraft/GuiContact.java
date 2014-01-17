@@ -36,18 +36,22 @@ public class GuiContact extends GuiScreen {
 		if (feed != null) {
 			int i = 0;
 			for (JsonNode item: feed.getNode("items").getElements()) {
-				String name = item.getStringValue("actor", "name");
-				String text = item.getStringValue("body", "text");
-				String date = item.getStringValue("relativeCreatedDate");
-				
-				drawString(fontRenderer, name, 15, 33 + (POST_HEIGHT * i), 0xFFFF00);
-				drawString(fontRenderer, ": " + text, 15 + fontRenderer.getStringWidth(name), 33 + (POST_HEIGHT * i), 0xC0C0C0);
-				drawString(fontRenderer, date, 15, 42 + (POST_HEIGHT * i), 0xC0C0C0);
-				
-				i++;
-				
-				if (33 + (POST_HEIGHT * i) > height) {
-					break;
+				try {
+					String name = item.getStringValue("actor", "name");
+					String text = item.getStringValue("body", "text");
+					String date = item.getStringValue("relativeCreatedDate");
+					
+					drawString(fontRenderer, name, 15, 33 + (POST_HEIGHT * i), 0xFFFF00);
+					drawString(fontRenderer, ": " + text, 15 + fontRenderer.getStringWidth(name), 33 + (POST_HEIGHT * i), 0xC0C0C0);
+					drawString(fontRenderer, date, 15, 42 + (POST_HEIGHT * i), 0xC0C0C0);
+					
+					i++;
+					
+					if (33 + (POST_HEIGHT * i) > height) {
+						break;
+					}
+				} catch (IllegalArgumentException iae) {
+					// Probably no body.text - just don't render it
 				}
 			}
 		}

@@ -13,6 +13,10 @@ Each Salesforce Contact is represented by a Villager-derived entity, with the Co
 
 ![Contact](http://metadaddy-sfdc.github.io/Forcecraft/Contact.png)
 
+Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact.
+
+![Contact Feed](http://metadaddy-sfdc.github.io/Forcecraft/ContactFeed.png)
+
 If an Opportunity's Stage Name is updated to 'Closed Won', a Contact from the associated Account will teleport to the player and give the player items to the 'value' of the opportunity. If, on the other hand, an Opportunity's Stage Name is updated to 'Closed Lost', the weather will take a turn for the worse!
 
 Take a look at the mod in action:
@@ -26,7 +30,7 @@ Running the mod
 
 * [Minecraft](https://minecraft.net/) 1.6.4
 * [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 9.11.1.953 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.6.4-9.11.1.953/forge-1.6.4-9.11.1.953-installer.jar) and run it to create a Forge profile in the Minecraft launcher.
-* [The mod binary](https://raw2.github.com/metadaddy-sfdc/Forcecraft/master/Forcecraft-v0.1.0.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
+* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.1.1.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
 * A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
 **IMPORTANT** You MUST create a configuration file with your account credentials so that Forcecraft can authenticate to Salesforce. Use this as a template:

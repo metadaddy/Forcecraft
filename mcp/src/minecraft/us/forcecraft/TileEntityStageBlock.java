@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.nbt.NBTTagCompound;
@@ -39,8 +37,6 @@ public class TileEntityStageBlock extends TileEntity
         	return 1;
         }
     }
-
-    @SideOnly(Side.CLIENT)
 
     /**
      * Writes a tile entity to NBT.

@@ -161,7 +161,7 @@ public class StreamingClient {
 								List<JsonNode> contacts = records.get(i).getNode("Contacts", "records").getElements();
 								EntityContact entityContact = EntityContact.contactMap.get(contacts.get(0).getStringValue("Id"));
 								
-								Vec3 playerPos = player.getPosition(1.0F);
+								Vec3 playerPos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ); 
 								Vec3 look = player.getLook(1.0F);
 								Vec3 pos = playerPos.addVector(look.xCoord, 0, look.zCoord);
 
