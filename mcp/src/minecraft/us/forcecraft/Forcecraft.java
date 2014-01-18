@@ -10,6 +10,10 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.common.ForgeInternalHandler;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.event.world.WorldEvent;
 import argo.jdom.JsonNode;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -82,25 +86,7 @@ public class Forcecraft {
 	public void preInit(FMLPreInitializationEvent event) {
 		ConfigHandler.init(event.getSuggestedConfigurationFile());
 		
-		if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
-			try {
-				client.login(Forcecraft.loginHost, Forcecraft.username, Forcecraft.password);
-	
-				client.getId();
-				
-				this.accounts = client.getAccounts();
-				this.stages = client.getStages();
-				
-				if (!client.streamingTopicExists()) {
-					client.createStreamingTopic();
-				}
-									
-				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), client.oauth.getStringValue("access_token"));				
-			} catch (Exception e) {
-				e.printStackTrace();
-				//player.addChatMessage("Exception: "+e.getMessage());
-			}
-		}
+		MinecraftForge.EVENT_BUS.register(this);
 		
 		// StageBlock is a special stone block associated with an opportunity stage
 		stageBlock = new StageBlock(stageBlockId, Material.rock)
@@ -134,5 +120,32 @@ public class Forcecraft {
     public Teleporter getDefaultTeleporter()
     {
         return this.teleporter;
+    }
+    
+    // Called by event handler when world is loaded
+	@ForgeSubscribe
+	public void onDimensionLoad(WorldEvent.Load event)
+	{
+		// If we're the server and this is the Forcecraft dimension...
+		if (!event.world.isRemote && event.world.provider.dimensionId == dimensionId) {
+			try {
+				client.login(loginHost, username, password);
+	
+				client.getId();
+				
+				accounts = client.getAccounts();
+				stages = client.getStages();
+				
+				if (!client.streamingTopicExists()) {
+					client.createStreamingTopic();
+				}
+									
+				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
+						client.oauth.getStringValue("access_token"));				
+			} catch (Exception e) {
+				e.printStackTrace();
+				//player.addChatMessage("Exception: "+e.getMessage());
+			}
+		}
     }
 }
