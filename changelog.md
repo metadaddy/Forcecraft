@@ -1,7 +1,7 @@
 0.1.2
 -----
 
-* Fixed [regression in 0.1.1](../../Forcecraft/issues/1)
+* Fixed [regression in 0.1.1](../../issues/1)
 
 0.1.1
 -----
