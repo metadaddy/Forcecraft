@@ -9,5 +9,6 @@ do
 	jar xvf $f
 done
 
-# Need to bump version number...
-jar cvf ../../../Forcecraft-v0.1.1.jar *
+# Extract version number...
+VERSION=`egrep -o 'version="\d+.\d+.\d+"' ../../src/minecraft/us/forcecraft/Forcecraft.java | cut -f2 -d \"`
+jar cvf ../../../Forcecraft-v${VERSION}.jar *
