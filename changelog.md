@@ -1,3 +1,8 @@
+0.1.3
+-----
+
+* Added post to Chatter
+
 0.1.2
 -----
 

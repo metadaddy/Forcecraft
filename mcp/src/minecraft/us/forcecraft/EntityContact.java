@@ -109,18 +109,23 @@ public class EntityContact extends EntityVillager {
 	private void displayChatterGUI(EntityPlayerMP player) {
 		player.incrementWindowID();
 		
+		showChatter(player, player.currentWindowId, id, getCustomNameTag());
+	}
+	
+	public static void showChatter(EntityPlayerMP player, int windowId, String contactId, String contactName) {
         try
         {
             ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
-            os.writeInt(player.currentWindowId);
-            os.writeObject(getCustomNameTag());
-            os.writeObject(Forcecraft.instance.client.getFeed(id));
+            os.writeInt(windowId);
+            os.writeObject(contactId);
+            os.writeObject(contactName);
+            os.writeObject(Forcecraft.instance.client.getFeed(contactId));
             player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CONTACT_CHANNEL, bytearrayoutputstream.toByteArray()));
         }
         catch (Exception exception)
         {
             exception.printStackTrace();
-        }
+        }		
 	}
 }

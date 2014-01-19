@@ -10,12 +10,10 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.ForgeInternalHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.world.WorldEvent;
 import argo.jdom.JsonNode;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -29,11 +27,11 @@ import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.2")
+@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.3")
 @NetworkMod(clientSideRequired=true, 
-	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = PacketHandler.class)) 
+	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = ClientPacketHandler.class), 
+	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
 	public static final int DIMENSION_ID_DEFAULT = 7;
@@ -47,6 +45,7 @@ public class Forcecraft {
 	public static final String USERNAME_KEY = "username";
 	public static final String PASSWORD_KEY = "password";
 	public static final String CONTACT_CHANNEL = "FC|Contact";
+	public static final String CHATTER_CHANNEL = "FC|Chatter";
 
 	public static int groundLevel = 8;
 	
@@ -57,8 +56,9 @@ public class Forcecraft {
 	
 	public static String loginHost;
 	public static String username;
-	public static String password;	
-	public ForceRestClient client = new ForceRestClient();
+	public static String password;
+	
+	public ForceRestClient client = null;
 	
 	// Forge Mod instance
 	@Instance(value = "Forcecraft")
@@ -122,13 +122,16 @@ public class Forcecraft {
         return this.teleporter;
     }
     
-    // Called by event handler when world is loaded
 	@ForgeSubscribe
 	public void onDimensionLoad(WorldEvent.Load event)
 	{
 		// If we're the server and this is the Forcecraft dimension...
 		if (!event.world.isRemote && event.world.provider.dimensionId == dimensionId) {
 			try {
+				if (client == null) {
+					client = new ForceRestClient();
+				}
+				
 				client.login(loginHost, username, password);
 	
 				client.getId();

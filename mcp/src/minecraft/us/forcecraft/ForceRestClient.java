@@ -1,5 +1,10 @@
 package us.forcecraft;
 
+import static argo.jdom.JsonNodeFactories.array;
+import static argo.jdom.JsonNodeFactories.field;
+import static argo.jdom.JsonNodeFactories.object;
+import static argo.jdom.JsonNodeFactories.string;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -27,7 +32,6 @@ import argo.jdom.JdomParser;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.jdom.JsonStringNode;
-import static argo.jdom.JsonNodeFactories.*;
 
 /*
  * Methods for interacting with the Force.com REST API
@@ -390,5 +394,62 @@ public class ForceRestClient {
         }
         
         return responseBody;
+	}
+
+	public void postToChatter(String recordId, String post) {
+		JsonRootNode root = null;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+			System.out.println("Creating Chatter post");
+			
+        	HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/chatter/feeds/record/"+recordId+"/feed-items");
+            
+            httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            JsonRootNode json = object(
+                field("body", object(
+                	field("messageSegments", array(
+                		object(
+                			field("type", string("Text")),
+                            field("text", string(post))
+                        )
+                	))
+                ))
+            );
+            httppost.setEntity(new StringEntity(formatter.format(json),
+                    ContentType.create("application/json", Consts.UTF_8)));
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        return response.getStatusLine().toString();
+                    } else {
+                    	HttpEntity entity = response.getEntity();
+                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : null));
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+
+            System.out.println("executing POST " + httppost.getURI());
+
+            String responseBody = httpclient.execute(httppost, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+            System.out.println("----------------------------------------");
+		} catch (Exception e) {
+			e.printStackTrace();
+        } finally {
+        	try {
+        		httpclient.close();
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+        }
 	}
 }
