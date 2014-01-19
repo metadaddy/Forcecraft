@@ -13,7 +13,7 @@ Each Salesforce Contact is represented by a Villager-derived entity, with the Co
 
 ![Contact](http://metadaddy-sfdc.github.io/Forcecraft/Contact.png)
 
-Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact.
+Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact and allow you to post to the feed.
 
 ![Contact Feed](http://metadaddy-sfdc.github.io/Forcecraft/ContactFeed.png)
 
