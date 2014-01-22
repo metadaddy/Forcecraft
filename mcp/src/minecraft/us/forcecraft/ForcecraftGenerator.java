@@ -12,7 +12,6 @@ import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
-
 import argo.jdom.JsonNode;
 import cpw.mods.fml.common.IWorldGenerator;
 import cpw.mods.fml.common.Loader;
@@ -29,17 +28,45 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	}
 
 	private void generateSurface(World world, Random rand, int chunkX, int chunkZ) {    	
-    	generateBuilding(world, rand, chunkX, chunkZ);
-	}
-	
-	
-	
-	private void generateBuilding(World world, Random rand, int chunkX,
-			int chunkZ) {
     	List<JsonNode> records = Forcecraft.instance.accounts.getNode("records").getElements();
 		
-		if (chunkZ == 0 && chunkX >= 0 && chunkX < records.size()) {
-	    	JsonNode acct = records.get(chunkX);
+    	generateBuilding(world, rand, records, chunkX, chunkZ);
+	}
+	
+	// How far round a discrete spiral is the given co-ordinate?
+    // Worked backwards from http://stackoverflow.com/a/19287714/33905 to get this!
+    private static int getNDiscreteSpiral(int x, int y) {
+    	// Radius
+        int r = Math.max(Math.abs(x), Math.abs(y));
+        
+        // How many points inside this loop
+        int p = (8 * r * (r - 1)) / 2;
+        
+        // How many points on each side of the loop
+        int en = r * 2;
+        
+        // How far round the loop are we?
+        int a;
+        
+        if (x == -1 * r) { // left 
+            a = (en * 4) - (r + y);
+        } else if (y == r) { // top
+            a = (en * 3) - (r + x);
+        } else if (x == r) { // right
+            a = (en * 2) - (r - y);
+        } else { // bottom
+            a = en - (r - x);
+        }
+        
+        return a + p;
+    }
+
+	
+	private void generateBuilding(World world, Random rand, List<JsonNode> records, int chunkX,
+			int chunkZ) {
+    	int n = getNDiscreteSpiral(chunkX, chunkZ);
+		if (n < records.size()) {
+	    	JsonNode acct = records.get(n);
 			List<JsonNode> oppys = null;
             int height = 1;
 	    	try {
@@ -53,14 +80,14 @@ public class ForcecraftGenerator implements IWorldGenerator {
         		generateLevel(world, chunkX, chunkZ, l, acct, ((oppys != null) && (l < oppys.size())) ? oppys.get(l) : null, Forcecraft.instance.stages);
             }
             generateRoof(world, chunkX, chunkZ, height);
-            generateContacts(world, chunkX, chunkZ, height, Forcecraft.instance, records);
+            generateContacts(world, n, chunkX, chunkZ, height, Forcecraft.instance, records);
 		}
 	}
 
-	private void generateContacts(World world, int chunkX, int chunkZ, int height, Forcecraft forcecraft, List<JsonNode> records) {
+	private void generateContacts(World world, int n, int chunkX, int chunkZ, int height, Forcecraft forcecraft, List<JsonNode> records) {
 		// x 9, height, z 10
     	try {
-			List<JsonNode> contacts = records.get(chunkX).getNode("Contacts", "records").getElements();
+			List<JsonNode> contacts = records.get(n).getNode("Contacts", "records").getElements();
 			int nContacts = Math.min(contacts.size(), (7 * height * 8));
 			for (int i = 0; i < contacts.size(); i++) {
 		        JsonNode contact = contacts.get(i);
@@ -198,38 +225,55 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		}
 	}
 
-	public String[] splitIntoLines(String input, int maxCharInLine, int maxLines){
-	    StringTokenizer tok = new StringTokenizer(input, " ");
-	    StringBuilder output = new StringBuilder(input.length());
-	    int lineLen = 0;
-	    while (tok.hasMoreTokens()) {
-	        String word = tok.nextToken();
+    public static String[] splitIntoLines(String input, int maxCharInLine, int maxLines){
+        StringTokenizer tok = new StringTokenizer(input, " ");
+        StringBuilder output = new StringBuilder(input.length());
+        int lineLen = 0;
+        String[] lines = new String[maxLines];
+        int line = 0;
+        
+        while (tok.hasMoreTokens()) {
+            String word = tok.nextToken();
 
-	        while(word.length() > maxCharInLine){
-	            output.append(word.substring(0, maxCharInLine-lineLen) + "\n");
-	            word = word.substring(maxCharInLine-lineLen);
-	            lineLen = 0;
-	        }
+            while(word.length() > maxCharInLine){
+                output.append(word.substring(0, maxCharInLine-lineLen));
+                lines[line] = output.toString();
+                line++;
+                if (line == maxLines) {
+                    return lines;
+                }
+                output.setLength(0);
+                word = word.substring(maxCharInLine-lineLen);
+                lineLen = 0;
+            }
 
-	        if (lineLen + word.length() > maxCharInLine) {
-	            output.append("\n");
-	            lineLen = 0;
-	        }
-	        output.append(word + " ");
-
-	        lineLen += word.length() + 1;
-	    }
-	    // output.split();
-	    // return output.toString();
-	    String[] lines = output.toString().split("\n");
-	    
-		lines = Arrays.copyOf(lines, maxLines);
-		for (int n = 0; n < lines.length; n++) {
-			if (lines[n] == null) {
-				lines[n] = "";
-			}
-		}
-		
-		return lines;
-	}
+            if (lineLen + 1 + word.length() > maxCharInLine) {
+                lines[line] = output.toString();
+                line++;
+                if (line == maxLines) {
+                    return lines;
+                }
+                output.setLength(0);
+                lineLen = 0;
+            }
+            
+            if (lineLen > 0) {
+                output.append(" ");
+                lineLen++;
+            }
+            
+            output.append(word);
+            lineLen += word.length();
+        }
+        lines[line] = output.toString();
+        line++;
+        
+        for (int n = line; n < lines.length; n++) {
+            if (lines[n] == null) {
+                lines[n] = "";
+            }
+        }
+        
+        return lines;
+    }
 }
