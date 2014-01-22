@@ -21,6 +21,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
@@ -86,8 +87,6 @@ public class Forcecraft {
 	public void preInit(FMLPreInitializationEvent event) {
 		ConfigHandler.init(event.getSuggestedConfigurationFile());
 		
-		MinecraftForge.EVENT_BUS.register(this);
-		
 		// StageBlock is a special stone block associated with an opportunity stage
 		stageBlock = new StageBlock(stageBlockId, Material.rock)
         	.setHardness(0.5F)
@@ -122,33 +121,29 @@ public class Forcecraft {
         return this.teleporter;
     }
     
-	@ForgeSubscribe
-	public void onDimensionLoad(WorldEvent.Load event)
+	@EventHandler
+	public void aboutToStart(FMLServerAboutToStartEvent event)
 	{
-		// If we're the server and this is the Forcecraft dimension...
-		if (!event.world.isRemote && event.world.provider.dimensionId == dimensionId) {
-			try {
-				if (client == null) {
-					client = new ForceRestClient();
-				}
-				
-				client.login(loginHost, username, password);
-	
-				client.getId();
-				
-				accounts = client.getAccounts();
-				stages = client.getStages();
-				
-				if (!client.streamingTopicExists()) {
-					client.createStreamingTopic();
-				}
-									
-				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
-						client.oauth.getStringValue("access_token"));				
-			} catch (Exception e) {
-				e.printStackTrace();
-				//player.addChatMessage("Exception: "+e.getMessage());
+		try {
+			if (client == null) {
+				client = new ForceRestClient();
 			}
+			
+			client.login(loginHost, username, password);
+
+			client.getId();
+			
+			accounts = client.getAccounts();
+			stages = client.getStages();
+			
+			if (!client.streamingTopicExists()) {
+				client.createStreamingTopic();
+			}
+								
+			StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
+					client.oauth.getStringValue("access_token"));				
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
     }
 }
