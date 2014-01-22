@@ -1,3 +1,9 @@
+0.1.4
+-----
+
+* Arrange buildings in a square rather than a single row
+* Fixed bug that caused crash when creating a new world
+
 0.1.3
 -----
 
