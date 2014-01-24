@@ -30,12 +30,13 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.5")
+@Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.5")
 @NetworkMod(clientSideRequired=true, 
 	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = ClientPacketHandler.class), 
 	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
+	public static final String FORCECRAFT = "Forcecraft";
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
 	public static final int STAGE_BLOCK_ID_DEFAULT = 3500;

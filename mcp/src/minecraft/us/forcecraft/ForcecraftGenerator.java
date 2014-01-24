@@ -6,13 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import argo.jdom.JsonNode;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.IWorldGenerator;
 import cpw.mods.fml.common.Loader;
 
@@ -122,6 +125,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    	JsonNode acct = records.get(n);
 	    	
 	    	if (!acct.getBooleanValue("IsDeleted")) {
+	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d. %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
 		    	try {
