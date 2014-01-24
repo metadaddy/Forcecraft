@@ -97,7 +97,7 @@ public class ForceRestClient {
     				"FROM Account "+
         			"ORDER BY CreatedDate";
             HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-            		"/services/data/v29.0/queryAll?q="+URLEncoder.encode(query, "UTF-8"));
+            		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
             
             httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
             
