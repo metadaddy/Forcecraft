@@ -91,12 +91,13 @@ public class ForceRestClient {
 		JsonRootNode root = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-        	String query = "SELECT Name, Id, "+
-    				"(SELECT Id, Name, Amount, StageName, IsClosed FROM Account.Opportunities), "+
-        			"(SELECT Id, Name FROM Account.Contacts) "+
-    				"FROM Account";
+        	String query = "SELECT Name, Id, IsDeleted,"+
+    				"(SELECT Id, Name, Amount, StageName, IsClosed FROM Account.Opportunities ORDER BY CreatedDate), "+
+        			"(SELECT Id, Name FROM Account.Contacts ORDER BY CreatedDate) "+
+    				"FROM Account "+
+        			"ORDER BY CreatedDate";
             HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-            		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
+            		"/services/data/v29.0/queryAll?q="+URLEncoder.encode(query, "UTF-8"));
             
             httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
             
@@ -107,10 +108,11 @@ public class ForceRestClient {
                 public String handleResponse(
                         final HttpResponse response) throws ClientProtocolException, IOException {
                     int status = response.getStatusLine().getStatusCode();
+                    HttpEntity entity = response.getEntity();
                     if (status >= 200 && status < 300) {
-                        HttpEntity entity = response.getEntity();
                         return entity != null ? EntityUtils.toString(entity) : null;
                     } else {
+                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
                         throw new ClientProtocolException("Unexpected response status: " + status);
                     }
                 }
@@ -264,13 +266,13 @@ public class ForceRestClient {
         }
 	}
 
-	public boolean streamingTopicExists() throws Exception {
+	public boolean streamingTopicExists(String topicName) throws Exception {
 		JsonRootNode root = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-			System.out.println("Checking for PushTopic "+StreamingClient.TOPIC_NAME);
+			System.out.println("Checking for PushTopic "+topicName);
 			
-        	String query = "SELECT Id FROM PushTopic WHERE Name = '"+StreamingClient.TOPIC_NAME+"'";
+        	String query = "SELECT Id FROM PushTopic WHERE Name = '"+topicName+"'";
             HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
             		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
             
@@ -308,19 +310,19 @@ public class ForceRestClient {
         return (root != null && root.getNode("records").getElements().size() > 0);	
 	}
 
-	public void createStreamingTopic() throws Exception {
+	public void createStreamingTopic(String topicName, String topicQuery) throws Exception {
 		JsonRootNode root = null;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-			System.out.println("Creating PushTopic "+StreamingClient.TOPIC_NAME);
+			System.out.println("Creating PushTopic "+topicName);
 			
         	HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
             		"/services/data/v29.0/sobjects/PushTopic");
             
             httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
             JsonRootNode json = object(
-                field("Name", string(StreamingClient.TOPIC_NAME)),
-                field("Query", string(StreamingClient.TOPIC_QUERY)),
+                field("Name", string(topicName)),
+                field("Query", string(topicQuery)),
                 field("ApiVersion", string(StreamingClient.API_VERSION))
             );
             httppost.setEntity(new StringEntity(formatter.format(json),
@@ -336,7 +338,7 @@ public class ForceRestClient {
                         return response.getStatusLine().toString();
                     } else {
                     	HttpEntity entity = response.getEntity();
-                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : null));
+                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
                         throw new ClientProtocolException("Unexpected response status: " + status);
                     }
                 }
@@ -429,7 +431,7 @@ public class ForceRestClient {
                         return response.getStatusLine().toString();
                     } else {
                     	HttpEntity entity = response.getEntity();
-                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : null));
+                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
                         throw new ClientProtocolException("Unexpected response status: " + status);
                     }
                 }

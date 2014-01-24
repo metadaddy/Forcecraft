@@ -60,6 +60,59 @@ public class ForcecraftGenerator implements IWorldGenerator {
         
         return a + p;
     }
+    
+    // What is the co-ordinate of the nth point on a discrete spiral?
+    // From http://stackoverflow.com/a/19287714/33905
+    public static int[] getPointDiscreteSpiral(int n) {
+        int[] pos = new int[2];
+        
+        if (n == 0) {
+            pos[0] = 0;
+            pos[1] = 0;
+            return pos;
+        }
+        
+        n--;
+        
+        int r = (int)(Math.floor((Math.sqrt(n + 1) - 1.0) / 2.0) + 1.0);
+        
+        int p = (8 * r * (r - 1)) / 2;
+        
+        int en = r * 2;
+        
+        int a = (1 + n - p) % (r * 8);
+        
+        switch ((int)Math.floor(a / (r * 2))) {
+        // find the face : 0 top, 1 right, 2, bottom, 3 left
+        case 0:
+            {
+                pos[0] = a - r;
+                pos[1] = -r;
+            }
+            break;
+        case 1:
+            {
+                pos[0] = r;
+                pos[1] = (a % en) - r;
+
+            }
+            break;
+        case 2:
+            {
+                pos[0] = r - (a % en);
+                pos[1] = r;
+            }
+            break;
+        case 3:
+            {
+                pos[0] = -r;
+                pos[1] = r - (a % en);
+            }
+            break;
+        }
+        
+        return pos;
+    }
 
 	
 	private void generateBuilding(World world, Random rand, List<JsonNode> records, int chunkX,
@@ -67,24 +120,29 @@ public class ForcecraftGenerator implements IWorldGenerator {
     	int n = getNDiscreteSpiral(chunkX, chunkZ);
 		if (n < records.size()) {
 	    	JsonNode acct = records.get(n);
-			List<JsonNode> oppys = null;
-            int height = 1;
-	    	try {
-				oppys = acct.getNode("Opportunities", "records").getElements();
-	            height = Math.max(1, oppys.size());
-    		} catch (IllegalArgumentException iae) {
-    			// No data
-    		}
-            
-            for (int l = 0; l < height; l++) {
-        		generateLevel(world, chunkX, chunkZ, l, acct, ((oppys != null) && (l < oppys.size())) ? oppys.get(l) : null, Forcecraft.instance.stages);
-            }
-            generateRoof(world, chunkX, chunkZ, height);
-            generateContacts(world, n, chunkX, chunkZ, height, Forcecraft.instance, records);
+	    	
+	    	if (!acct.getBooleanValue("IsDeleted")) {
+				List<JsonNode> oppys = null;
+	            int height = 1;
+		    	try {
+					oppys = acct.getNode("Opportunities", "records").getElements();
+		            height = Math.max(1, oppys.size());
+	    		} catch (IllegalArgumentException iae) {
+	    			// No data
+	    		}
+	            
+	            for (int l = 0; l < height; l++) {
+	        		generateLevel(world, chunkX, chunkZ, l, acct, 
+	        				((oppys != null) && (l < oppys.size())) ? oppys.get(l) : null, 
+	        				Forcecraft.instance.stages);
+	            }
+	            generateRoof(world, chunkX, chunkZ, height);
+	            generateContacts(world, n, chunkX, chunkZ, height, records);
+	    	}	    	
 		}
 	}
 
-	private void generateContacts(World world, int n, int chunkX, int chunkZ, int height, Forcecraft forcecraft, List<JsonNode> records) {
+	private void generateContacts(World world, int n, int chunkX, int chunkZ, int height, List<JsonNode> records) {
 		// x 9, height, z 10
     	try {
 			List<JsonNode> contacts = records.get(n).getNode("Contacts", "records").getElements();
@@ -113,6 +171,15 @@ public class ForcecraftGenerator implements IWorldGenerator {
 			j = Forcecraft.groundLevel + (l*STORY_HEIGHT),
 			k = (chunkZ * 16) + 4,
 			p, q, r;
+		double amount;
+		try {
+			amount = Double.valueOf(oppy.getNumberValue("Amount"));
+		} catch (Exception e) {
+			amount = 0.0;
+		}
+		
+		int wallBlock = (amount > 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
+
         
 		// x, y, x are relative to lower front right corner of floor
     	for (int x = 0; x < 12; x++) {
@@ -148,7 +215,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		    	    		tileentitystageblock.setOpportunityStage(oppy.getStringValue("Id"), 
 		    	    				stages.get(10-z).getStringValue("label"));
 		    			} else {
-		    				world.setBlock(p, q, r, Block.stone.blockID, 0, 2);
+		    				world.setBlock(p, q, r, wallBlock, 0, 2);
 		    			}
 	    			} else if (y == 0 && (x < 10 || (z < 4 || z > 8))) { // ceiling
 	    				int blockID = Block.blockNetherQuartz.blockID;

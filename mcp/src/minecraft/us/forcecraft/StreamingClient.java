@@ -39,16 +39,17 @@ import java.util.Map;
  * against the Salesforce Streaming API with generic notifications.
  **/
 public class StreamingClient {
-	public static final String TOPIC_NAME = "ForcecraftOpportunities";
-	public static final String TOPIC_QUERY = "SELECT Id, Name, Amount, StageName, AccountId FROM Opportunity";
 	public static final String API_VERSION = "29.0";
-	private static final String CHANNEL = "/topic/"+TOPIC_NAME;
+	public static final String OPPORTUNITY_TOPIC_NAME = "ForcecraftOpportunities";
+	public static final String OPPORTUNITY_TOPIC_QUERY = "SELECT Id, Name, Amount, StageName, AccountId FROM Opportunity";
+	private static final String OPPORTUNITY_CHANNEL = "/topic/"+OPPORTUNITY_TOPIC_NAME;
+	public static final String ACCOUNT_TOPIC_NAME = "ForcecraftAccounts";
+	public static final String ACCOUNT_TOPIC_QUERY = "SELECT Id, Name FROM Account";
+	private static final String ACCOUNT_CHANNEL = "/topic/"+ACCOUNT_TOPIC_NAME;
 	private static final String STREAMING_ENDPOINT_URI = "/cometd/"+API_VERSION;
 	private static final int CONNECTION_TIMEOUT = 20 * 1000;  // milliseconds
 	private static final int READ_TIMEOUT = 120 * 1000; // milliseconds
 	
-	public static boolean inMessage = false; // True if we're currently processing a message from Salesforce
-
 	public static void subscribe(final String endpoint, final String sessionid) throws Exception {
 		System.out.println("Connecting to Streaming API....");
 		final BayeuxClient client = makeClient(endpoint, sessionid);
@@ -57,7 +58,15 @@ public class StreamingClient {
 			public void onMessage(ClientSessionChannel channel, Message message) {
 				System.out.println("[CHANNEL:META_HANDSHAKE]: " + message);
 				boolean success = message.isSuccessful();
-				if (!success) {
+				if (success) {
+					System.out.println("Subscribing for channel: " + ACCOUNT_CHANNEL);
+					client.getChannel(ACCOUNT_CHANNEL).subscribe(new AccountListener());
+					
+					System.out.println("Subscribing for channel: " + OPPORTUNITY_CHANNEL);
+					client.getChannel(OPPORTUNITY_CHANNEL).subscribe(new OpportunityListener());
+
+					System.out.println("Waiting for streamed data from your organization ...");
+				} else {
 					String error = (String) message.get("error");
 					if (error != null) {
 						System.out.println("Error during HANDSHAKE: " + error);
@@ -116,86 +125,6 @@ public class StreamingClient {
 			System.out.println("Failed to handshake: " + client);
 //			System.exit(1);
 		}
-
-		System.out.println("Subscribing for channel: " + CHANNEL);
-		client.getChannel(CHANNEL).subscribe(new MessageListener() {
-			@Override
-			public void onMessage(ClientSessionChannel channel, Message message) {
-				inMessage = true;
-				
-				try {
-					System.out.println("Received Message: " + message);
-					
-					JsonRootNode root = null;
-					try {
-						root = Forcecraft.instance.client.parser.parse(message.getJSON());
-					} catch (InvalidSyntaxException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						// and do... something
-					}
-					
-					JsonNode sobject = root.getNode("data", "sobject");
-					String oppyId = sobject.getStringValue("Id");
-					String oppyName = sobject.getStringValue("Name");
-					String stage = sobject.getStringValue("StageName");
-					String accountId = sobject.getStringValue("AccountId");
-					
-					TileEntityStageBlock t = TileEntityStageBlock.getStageBlock(oppyId, stage);
-					// If the lever for this oppy/stage is 'off'...
-					int leverX = t.xCoord+1;
-					if ((t.worldObj.getBlockMetadata(leverX, t.yCoord, t.zCoord) & 0x8) == 0) {
-						// Throw the lever to 'on', setting the current 'on' lever off...
-				        Block block = Block.blocksList[t.worldObj.getBlockId(leverX, t.yCoord, t.zCoord)];
-						block.onBlockActivated(t.worldObj, leverX, t.yCoord, t.zCoord, null, 0, 0.0F, 0.0F, 0.0F);
-					}
-					
-					// Basically assuming there is only one player for now
-					EntityPlayerMP player = (EntityPlayerMP)MinecraftServer.getServer().getConfigurationManager().playerEntityList.get(0);
-					
-					if (stage.equals("Closed Won")) {					
-						List<JsonNode> records = Forcecraft.instance.accounts.getNode("records").getElements();
-						for (int i = 0; i < records.size(); i++) {
-							String id = records.get(i).getStringValue("Id");
-							if (id.equals(accountId)) {
-								List<JsonNode> contacts = records.get(i).getNode("Contacts", "records").getElements();
-								EntityContact entityContact = EntityContact.contactMap.get(contacts.get(0).getStringValue("Id"));
-								
-								Vec3 playerPos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ); 
-								Vec3 look = player.getLook(1.0F);
-								Vec3 pos = playerPos.addVector(look.xCoord, 0, look.zCoord);
-
-								entityContact.setPositionAndUpdate(pos.xCoord, pos.yCoord, pos.zCoord);
-								
-								String amount = root.getNumberValue("data", "sobject", "Amount");
-								
-								player.addChatMessage("Opportunity closed: " + oppyName + 
-										", for $"+amount);
-								
-								List<int[]> items = EntityContact.getTreasure(Double.valueOf(amount));
-								for (int j = 0; j < items.size(); j++) {
-									entityContact.dropItem(items.get(j)[0], items.get(j)[1]);								
-								}
-							}
-						}
-					} else if (stage.equals("Closed Lost")) {
-						player.addChatMessage("Opportunity lost: " + oppyName);
-						
-			            WorldServer worldserver = MinecraftServer.getServer().worldServers[0];		            
-			            WorldInfo worldinfo = worldserver.getWorldInfo();
-			            int weatherTime = 60 * 20; // Number of ticks in one minute
-			            worldinfo.setRainTime(weatherTime);
-			            worldinfo.setThunderTime(weatherTime);
-		                worldinfo.setRaining(true);
-		                worldinfo.setThundering(true);					
-					}					
-				} finally {
-					inMessage = false;
-				}				
-			}	
-		});
-
-		System.out.println("Waiting for streamed data from your organization ...");
 	}
 
 	private static BayeuxClient makeClient(final String endpoint, final String sessionid) throws Exception {

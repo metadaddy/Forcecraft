@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
@@ -127,21 +128,28 @@ public class Forcecraft {
 		try {
 			if (client == null) {
 				client = new ForceRestClient();
-			}
-			
-			client.login(loginHost, username, password);
+				
+				client.login(loginHost, username, password);
 
-			client.getId();
-			
-			accounts = client.getAccounts();
-			stages = client.getStages();
-			
-			if (!client.streamingTopicExists()) {
-				client.createStreamingTopic();
-			}
-								
-			StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
-					client.oauth.getStringValue("access_token"));				
+				client.getId();
+				
+				// TODO - loadingScreen.resetProgresAndWorkingMessage(I18n.getString(s2));
+				
+				accounts = client.getAccounts();
+				stages = client.getStages();
+				
+				// TODO - refactor
+				if (!client.streamingTopicExists(StreamingClient.OPPORTUNITY_TOPIC_NAME)) {
+					client.createStreamingTopic(StreamingClient.OPPORTUNITY_TOPIC_NAME, StreamingClient.OPPORTUNITY_TOPIC_QUERY);
+				}
+									
+				if (!client.streamingTopicExists(StreamingClient.ACCOUNT_TOPIC_NAME)) {
+					client.createStreamingTopic(StreamingClient.ACCOUNT_TOPIC_NAME, StreamingClient.ACCOUNT_TOPIC_QUERY);
+				}
+									
+				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
+						client.oauth.getStringValue("access_token"));				
+			}			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

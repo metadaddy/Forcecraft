@@ -72,7 +72,7 @@ public class StageBlock extends BlockContainer
                 }
                 // Don't schedule an update if we're processing a message from Salesforce -
                 // don't want a streaming update to cause a post back to Salesforce!
-                if (!StreamingClient.inMessage) {
+                if (!OpportunityListener.inMessage) {
                 	world.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(world));
                 }
             }
