@@ -1,3 +1,9 @@
+0.1.5
+-----
+
+* Forcecraft listens for Account & Opportunity creation events and will create or extend buildings as appropriate.
+* Streaming client now reconnects after timeouts.
+
 0.1.4
 -----
 
