@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAIFollowGolem;
+import net.minecraft.entity.ai.EntityAITaskEntry;
+import net.minecraft.entity.ai.EntityAIVillagerMate;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,21 +23,48 @@ import net.minecraft.world.World;
 public class EntityContact extends EntityVillager {
 	public static Map<String, EntityContact> contactMap = new HashMap<String, EntityContact>();
 	private static Random rand = new Random();
+	private static final Class[] unwantedAI = { 
+		EntityAIVillagerMate.class,
+		EntityAIFollowGolem.class
+	};
 	String id;
+	long oppyCloseTime = 0;
 
 	public EntityContact(World par1World) {
-		super(par1World);
-		
-		this.id = null;
+		this(par1World, null);
 	}
 
 	public EntityContact(World par1World, String id) {
 		super(par1World, rand.nextInt(6)); // 6 villager professions
 		
+		overrideAI();
+		
+		this.tasks.addTask(0, new EntityAIWaitOnOppyClose(this));
+		
 		this.id = id;
 		addToContactMap();
 	}
 	
+	private EntityAIBase findTask(Class taskClass) {
+		for (Object o : tasks.taskEntries) {
+			EntityAITaskEntry taskEntry = (EntityAITaskEntry)o;
+			if (taskEntry.action.getClass().equals(taskClass)) {
+				return taskEntry.action;
+			}
+		}
+		
+		return null;
+	}
+	
+	private void overrideAI() {
+		for (Class taskClass : unwantedAI) {
+			EntityAIBase task = findTask(taskClass);
+			if (task != null) {
+				tasks.removeTask(task);
+			}			
+		}
+	}
+
 	private void addToContactMap() {
 		contactMap.put(this.id, this);		
 	}
@@ -127,5 +158,13 @@ public class EntityContact extends EntityVillager {
         {
             exception.printStackTrace();
         }		
+	}
+	
+	public long getOppyCloseTime() {
+		return this.oppyCloseTime;
+	}
+	
+	public void setOppyCloseTime(long time) {
+		this.oppyCloseTime = time;
 	}
 }

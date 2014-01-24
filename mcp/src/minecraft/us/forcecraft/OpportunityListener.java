@@ -90,6 +90,7 @@ public class OpportunityListener implements MessageListener {
 							Vec3 look = player.getLook(1.0F);
 							Vec3 pos = playerPos.addVector(look.xCoord, 0, look.zCoord);
 
+							entityContact.setOppyCloseTime(MinecraftServer.getSystemTimeMillis());
 							entityContact.setPositionAndUpdate(pos.xCoord, pos.yCoord, pos.zCoord);
 							
 							String amount = root.getNumberValue("data", "sobject", "Amount");							
