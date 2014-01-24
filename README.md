@@ -81,7 +81,13 @@ Minecraft, etc, as listed above, under 'Running the mod'. You will need the [Min
 
 ### Getting the source
 
-Clone the Forcecraft repo into the Forge root directory (the `forge/` directory created during zip extraction).
+Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory created during zip extraction) like this:
+
+	cd forge
+	git init
+	git remote add origin https://github.com/metadaddy-sfdc/Forcecraft.git
+	git fetch
+	git checkout -t origin/master
 
 ### Building the mod
 
