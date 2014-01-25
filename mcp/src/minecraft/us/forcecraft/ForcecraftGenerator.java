@@ -125,7 +125,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    	JsonNode acct = records.get(n);
 	    	
 	    	if (!acct.getBooleanValue("IsDeleted")) {
-	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d. %d)", acct.getStringValue("Name"), chunkX, chunkZ);
+	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
 		    	try {
