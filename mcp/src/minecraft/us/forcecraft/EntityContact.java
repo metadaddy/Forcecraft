@@ -66,7 +66,11 @@ public class EntityContact extends EntityVillager {
 	}
 
 	private void addToContactMap() {
-		contactMap.put(this.id, this);		
+		contactMap.put(id, this);		
+	}
+
+	private void removeFromContactMap() {
+		contactMap.remove(id);	
 	}
 
     /**
@@ -167,4 +171,16 @@ public class EntityContact extends EntityVillager {
 	public void setOppyCloseTime(long time) {
 		this.oppyCloseTime = time;
 	}
+	
+	@Override
+    public void setDead()
+    {
+        if (!this.worldObj.isRemote)
+        {
+        	removeFromContactMap();
+        }
+    	
+        // TODO - delete contact in Salesforce 
+        super.setDead();
+    }
 }

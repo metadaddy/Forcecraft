@@ -4,16 +4,12 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.world.WorldEvent;
 import argo.jdom.JsonNode;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -29,6 +25,8 @@ import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.5")
 @NetworkMod(clientSideRequired=true, 
@@ -72,6 +70,9 @@ public class Forcecraft {
 	
 	static Block stageBlock;
 	
+	public ForcecraftTickHandler tickHandler = new ForcecraftTickHandler();
+	public ForcecraftGenerator generator = new ForcecraftGenerator();
+	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event)
 	{
@@ -100,13 +101,15 @@ public class Forcecraft {
         GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
         
         GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
+        
+        TickRegistry.registerTickHandler(tickHandler, Side.SERVER);
 	}
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 		
-		GameRegistry.registerWorldGenerator(new ForcecraftGenerator());
+		GameRegistry.registerWorldGenerator(generator);
 		
 		EntityRegistry.registerGlobalEntityID(EntityContact.class, "Contact", EntityRegistry.findGlobalUniqueEntityId());
 		DimensionManager.registerProviderType(dimensionId, ForcecraftWorldProvider.class, false);
