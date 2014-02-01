@@ -128,10 +128,10 @@ public class OpportunityListener implements MessageListener {
 									entityContact.dropItem(items.get(j)[0], items.get(j)[1]);								
 								}
 								
-								Forcecraft.instance.client.postToChatter(entityContact.id, post, false);
+								Forcecraft.instance.client.postToChatter(entityContact.id, post);
 							}														
+							break;
 						}
-						break;
 					}
 				} else if (stage.equals("Closed Lost")) {
 					player.addChatMessage("Opportunity lost: " + oppyName);
