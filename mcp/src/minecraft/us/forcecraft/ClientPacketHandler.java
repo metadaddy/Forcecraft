@@ -2,7 +2,9 @@ package us.forcecraft;
 
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
+import java.util.List;
 
+import us.forcecraft.GuiContact.ChatterEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
@@ -18,16 +20,16 @@ public class ClientPacketHandler implements IPacketHandler {
 	@Override
 	public void onPacketData(INetworkManager manager,
 			Packet250CustomPayload packet, Player player) {
-		if (packet.channel.equals(Forcecraft.CONTACT_CHANNEL)) {
-            handleContact(packet, player);
+		if (packet.channel.equals(Forcecraft.CHATTER_CHANNEL)) {
+            handleChatter(packet, player);
 		}
 	}
 
-	private void handleContact(Packet250CustomPayload packet, Player player) {
+	private void handleChatter(Packet250CustomPayload packet, Player player) {
         int windowId;
         String contactId;
         String contactName;
-        String feedJson;
+        List<GuiContact.ChatterEntry> chatterEntries;
         
         try {
     		ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(packet.data));
@@ -35,7 +37,7 @@ public class ClientPacketHandler implements IPacketHandler {
         	windowId = inputStream.readInt();
         	contactId = (String)inputStream.readObject();
         	contactName = (String)inputStream.readObject();
-        	feedJson = (String)inputStream.readObject();
+        	chatterEntries = (List<ChatterEntry>)inputStream.readObject();
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -47,9 +49,9 @@ public class ClientPacketHandler implements IPacketHandler {
 
         if (guiscreen != null && guiscreen instanceof GuiContact && windowId == entityclientplayermp.openContainer.windowId) {
         	GuiContact guiContact = (GuiContact)guiscreen;
-        	guiContact.setFeed(feedJson);
+        	guiContact.setFeed(chatterEntries);
         } else {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiContact(windowId, contactId, contactName, feedJson));
+            Minecraft.getMinecraft().displayGuiScreen(new GuiContact(windowId, contactId, contactName, chatterEntries));
             entityclientplayermp.openContainer.windowId = windowId;        	
         }        
 	}

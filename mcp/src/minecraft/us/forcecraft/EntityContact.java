@@ -130,7 +130,7 @@ public class EntityContact extends EntityVillager {
         {
             if (!this.worldObj.isRemote)
             {
-            	displayChatterGUI((EntityPlayerMP)par1EntityPlayer);
+            	GuiContact.displayChatterGUI((EntityPlayerMP)par1EntityPlayer, id, getCustomNameTag());
             }
 
             return true;
@@ -141,29 +141,6 @@ public class EntityContact extends EntityVillager {
         }
     }
 
-	private void displayChatterGUI(EntityPlayerMP player) {
-		player.incrementWindowID();
-		
-		showChatter(player, player.currentWindowId, id, getCustomNameTag());
-	}
-	
-	public static void showChatter(EntityPlayerMP player, int windowId, String contactId, String contactName) {
-        try
-        {
-            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
-            os.writeInt(windowId);
-            os.writeObject(contactId);
-            os.writeObject(contactName);
-            os.writeObject(Forcecraft.instance.client.getFeed(contactId));
-            player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CONTACT_CHANNEL, bytearrayoutputstream.toByteArray()));
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-        }		
-	}
-	
 	public long getOppyCloseTime() {
 		return this.oppyCloseTime;
 	}
@@ -178,9 +155,15 @@ public class EntityContact extends EntityVillager {
         if (!this.worldObj.isRemote)
         {
         	removeFromContactMap();
+        	try {
+        		// NOTE - this can fail if the Contact is associated with Cases etc
+        		// TODO: Need to figure out how to handle failure - reanimate Contact? 
+        		Forcecraft.instance.client.delete("Contact", id);
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
         }
     	
-        // TODO - delete contact in Salesforce 
         super.setDead();
     }
 }

@@ -19,6 +19,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -457,6 +458,41 @@ public class ForceRestClient {
     		} catch (Exception e) {
     			e.printStackTrace();
     		}
+        }
+	}
+	
+	public void delete(String objectType, String recordId) throws Exception {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpDelete httpdelete = new HttpDelete(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/sobjects/"+objectType+"/"+recordId);
+            
+            httpdelete.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            
+
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        return response.getStatusLine().toString();
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
+
+            };
+
+            System.out.println("executing DELETE " + httpdelete.getURI());
+
+            String responseBody = httpclient.execute(httpdelete, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+            System.out.println("----------------------------------------");
+        } finally {
+            httpclient.close();
         }
 	}
 }

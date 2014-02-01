@@ -18,10 +18,13 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	interface IBlockReceiver {
 		public void setBlock(int x, int y, int z, int blockID, int metadata, int flags);
 
-		public void setStageEntity(int p, int q, int r, String stringValue,
+		public void setStageEntity(int x, int y, int z, String stringValue,
 				String stringValue2);
 
-		public void setSignEntity(int p, int q, int r, String[] splitIntoLines);
+		public void setSignEntity(int x, int y, int z, String[] splitIntoLines);
+
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] splitIntoLines, String name, String stringValue);
 	}
 	
 	class DefaultBlockReceiver implements IBlockReceiver {
@@ -37,8 +40,8 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		}
 
 		@Override
-		public void setStageEntity(int p, int q, int r, String oppyId, String stage) {
-    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(p, q, r);
+		public void setStageEntity(int x, int y, int z, String oppyId, String stage) {
+    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(x, y, z);
     		tileentitystageblock.setOpportunityStage(oppyId, stage);
 		}
 
@@ -47,6 +50,17 @@ public class ForcecraftGenerator implements IWorldGenerator {
     		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(x, y, z);
             tileentitysign.signText = text;
             tileentitysign.onInventoryChanged();
+            world.markBlockForUpdate(x, y, z);
+		}
+
+		@Override
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] text, String name, String id) {
+    		TileEntityChatterSign tileentitychattersign = (TileEntityChatterSign)world.getBlockTileEntity(x, y, z);
+    		tileentitychattersign.signText = text;
+    		tileentitychattersign.accountId = id;
+    		tileentitychattersign.accountName = name;
+    		tileentitychattersign.onInventoryChanged();
             world.markBlockForUpdate(x, y, z);
 		}
 	}
@@ -113,6 +127,26 @@ public class ForcecraftGenerator implements IWorldGenerator {
 			}
 		}
 		
+		class ChatterSignRecord extends SignRecord {
+			String accountId;
+			String accountName;
+			
+			public ChatterSignRecord(int x, int y, int z, String[] text, String accountId, String accountName) {
+				super(x, y, z, text);
+				this.accountId = accountId;
+				this.accountName = accountName;
+			}
+			
+			public void setSign() {
+	    		TileEntityChatterSign tileentitychattersign = (TileEntityChatterSign)world.getBlockTileEntity(x, y, z);
+	    		tileentitychattersign.signText = text;
+	    		tileentitychattersign.accountId = accountId;
+	    		tileentitychattersign.accountName = accountName;
+	    		tileentitychattersign.onInventoryChanged();
+                world.markBlockForUpdate(x, y, z);
+			}
+		}
+		
 		World world;
 		public List<BlockRecord> blocks;
 		public List<StageRecord> stages;
@@ -168,6 +202,12 @@ public class ForcecraftGenerator implements IWorldGenerator {
 				stages.get(i).setStage();
 			}
 			stages.clear();
+		}
+
+		@Override
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] text, String name, String id) {
+			signs.add(new ChatterSignRecord(x, y, z, text, name, id));
 		}
 	}
 	
@@ -410,15 +450,17 @@ public class ForcecraftGenerator implements IWorldGenerator {
     	// Opportunity Name
     	if (oppy != null) {
         	p = i+1; q = j+4; r = k+5;
-        	receiver.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
-			receiver.setSignEntity(p, q, r, splitIntoLines(oppy.getStringValue("Name"), 15, 4));
+        	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 5 /* Face east */, 2);
+        	String name = oppy.getStringValue("Name");
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, oppy.getStringValue("Id"));
     	}
         
     	if (l == 0) {
     		// Account Name
         	p = i+4; q = j+2; r = k-1;
-        	receiver.setBlock(p, q, r, Block.signWall.blockID, 2 /* Face north */, 2);
-			receiver.setSignEntity(p, q, r, splitIntoLines(acct.getStringValue("Name"), 15, 4));
+        	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 2 /* Face north */, 2);
+        	String name = acct.getStringValue("Name");
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, acct.getStringValue("Id"));
     	}
 	}
 

@@ -2,10 +2,14 @@ package us.forcecraft;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.packet.Packet250CustomPayload;
 
 import org.lwjgl.input.Keyboard;
@@ -18,28 +22,55 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiContact extends GuiScreen {
+	static class ChatterEntry implements Serializable {
+		String name;
+		String text;
+		String date;
+		
+		public ChatterEntry(String name, String text, String date) {
+			this.name = name;
+			this.text = text;
+			this.date = date;
+		}
+		
+		public static List<ChatterEntry> makeEntries(String feedJson) throws InvalidSyntaxException {
+            JsonRootNode feed = Forcecraft.instance.client.parser.parse(feedJson);
+        	List<JsonNode> items = feed.getNode("items").getElements();
+        	List<ChatterEntry> chatterEntries = new ArrayList<ChatterEntry>();
+        	int count = Math.min(items.size(), 20);
+			for (int i = 0; i < count; i++) {
+				JsonNode item = items.get(i);
+				String text;
+				String name;
+				try {
+					text = item.getStringValue("body", "text");
+					name = item.getStringValue("actor", "name");
+				} catch (IllegalArgumentException iae) {
+					// no body.text - use preamble with no name
+					text = item.getStringValue("preamble", "text");
+					name = "";
+				}
+				String date = item.getStringValue("relativeCreatedDate");
+				chatterEntries.add(new ChatterEntry(name, text, date));
+			}
+			return chatterEntries;
+		}
+	}
+	
 	private int windowId;
 	private String contactId;
 	private String contactName;
-	private JsonRootNode feed = null;
+	private List<ChatterEntry> feed = null;
 	private static final int POST_HEIGHT = 22;
 	private static final int MAX_CHATTER_CHARS = 80;
 	private GuiTextField textfield;
 	private int yInput;
 
-	public GuiContact(int windowId, String contactId, String contactName, String feedJson) {
+	public GuiContact(int windowId, String contactId, String contactName, List<ChatterEntry> feed) {
 		this.windowId = windowId;
 		this.contactId = contactId;
 		this.contactName = contactName;
-        try {
-			this.feed = Forcecraft.instance.client.parser.parse(feedJson);
-	        System.out.println("----------------------------------------");
-	        System.out.println(Forcecraft.instance.client.formatter.format(this.feed));
-	        System.out.println("----------------------------------------");
-		} catch (InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.feed = feed;
 	}
 	
 	@Override
@@ -130,23 +161,15 @@ public class GuiContact extends GuiScreen {
 		
 		if (feed != null) {
 			int i = 0;
-			for (JsonNode item: feed.getNode("items").getElements()) {
-				try {
-					String name = item.getStringValue("actor", "name");
-					String text = item.getStringValue("body", "text");
-					String date = item.getStringValue("relativeCreatedDate");
-					
-					drawString(fontRenderer, name, 15, 33 + (POST_HEIGHT * i), 0xFFFF00);
-					drawString(fontRenderer, ": " + text, 15 + fontRenderer.getStringWidth(name), 33 + (POST_HEIGHT * i), 0xC0C0C0);
-					drawString(fontRenderer, date, 15, 42 + (POST_HEIGHT * i), 0xC0C0C0);
-					
-					i++;
-					
-					if (33 + (POST_HEIGHT * i) > yInput) {
-						break;
-					}
-				} catch (IllegalArgumentException iae) {
-					// Probably no body.text - just don't render it
+			for (ChatterEntry item: feed) {
+				drawString(fontRenderer, item.name, 15, 33 + (POST_HEIGHT * i), 0xFFFF00);
+				drawString(fontRenderer, ((item.name.length() > 0) ? ": " : "") + item.text, 15 + fontRenderer.getStringWidth(item.name), 33 + (POST_HEIGHT * i), 0xC0C0C0);
+				drawString(fontRenderer, item.date, 15, 42 + (POST_HEIGHT * i), 0xC0C0C0);
+				
+				i++;
+				
+				if (33 + (POST_HEIGHT * i) > yInput) {
+					break;
 				}
 			}
 		}
@@ -155,15 +178,32 @@ public class GuiContact extends GuiScreen {
 		textfield.drawTextBox();
 	}
 
-	public void setFeed(String feedJson) {
-        try {
-			this.feed = Forcecraft.instance.client.parser.parse(feedJson);
-	        System.out.println("----------------------------------------");
-	        System.out.println(Forcecraft.instance.client.formatter.format(this.feed));
-	        System.out.println("----------------------------------------");
-		} catch (InvalidSyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void setFeed(List<ChatterEntry> chatterEntries) {
+		this.feed = chatterEntries;
 	}
+	
+	public static void displayChatterGUI(EntityPlayerMP player, String id, String name) {
+		player.incrementWindowID();
+		
+		showChatter(player, player.currentWindowId, id, name);
+	}	
+	
+	public static void showChatter(EntityPlayerMP player, int windowId, String id, String contactName) {
+        try
+        {
+            List<ChatterEntry> chatterEntries = ChatterEntry.makeEntries(Forcecraft.instance.client.getFeed(id));
+			
+            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
+            os.writeInt(windowId);
+            os.writeObject(id);
+            os.writeObject(contactName);
+            os.writeObject(chatterEntries);
+            player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CHATTER_CHANNEL, bytearrayoutputstream.toByteArray()));
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+        }		
+	}	
 }

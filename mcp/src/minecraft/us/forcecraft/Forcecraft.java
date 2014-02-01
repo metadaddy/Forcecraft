@@ -30,7 +30,7 @@ import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.5")
 @NetworkMod(clientSideRequired=true, 
-	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = ClientPacketHandler.class), 
+	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ClientPacketHandler.class), 
 	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
@@ -39,13 +39,15 @@ public class Forcecraft {
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
 	public static final int STAGE_BLOCK_ID_DEFAULT = 3500;
 	public static int stageBlockId = STAGE_BLOCK_ID_DEFAULT;
+	public static final int CHATTER_SIGN_BLOCK_ID_DEFAULT = 3501;
+	public static int chatterSignBlockId = CHATTER_SIGN_BLOCK_ID_DEFAULT;
 	
 	public static final String STAGE_BLOCK_NAME = "stage";
+	public static final String CHATTER_SIGN_BLOCK_NAME = "chatterSign";
 	public static final String DIMENSION_ID_NAME = "dimensionId";
 	public static final String LOGIN_HOST_KEY = "loginHost";
 	public static final String USERNAME_KEY = "username";
 	public static final String PASSWORD_KEY = "password";
-	public static final String CONTACT_CHANNEL = "FC|Contact";
 	public static final String CHATTER_CHANNEL = "FC|Chatter";
 
 	public static int groundLevel = 8;
@@ -68,6 +70,7 @@ public class Forcecraft {
 	@SidedProxy(clientSide="us.forcecraft.client.ClientProxy", serverSide="us.forcecraft.CommonProxy")
 	public static CommonProxy proxy;
 	
+	static Block chatterSignBlock;
 	static Block stageBlock;
 	
 	public ForcecraftTickHandler tickHandler = new ForcecraftTickHandler();
@@ -99,8 +102,16 @@ public class Forcecraft {
         	.setTextureName("stone");
 		LanguageRegistry.instance().addStringLocalization(STAGE_BLOCK_NAME, "en_US",  "Stage");
         GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
-        
         GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
+        
+		// BlockChatterSign is a special sign block associated with an account
+		chatterSignBlock = new BlockChatterSign(chatterSignBlockId, TileEntityChatterSign.class, false)
+        	.setHardness(1.0F)
+        	.setStepSound(Block.soundWoodFootstep)
+        	.setUnlocalizedName("sign");
+		LanguageRegistry.instance().addStringLocalization(CHATTER_SIGN_BLOCK_NAME, "en_US",  "Account Sign");
+        GameRegistry.registerBlock(stageBlock, CHATTER_SIGN_BLOCK_NAME);        
+        GameRegistry.registerTileEntity(TileEntityChatterSign.class, CHATTER_SIGN_BLOCK_NAME);
         
         TickRegistry.registerTickHandler(tickHandler, Side.SERVER);
 	}
