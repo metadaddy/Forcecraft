@@ -1,3 +1,12 @@
+0.1.6
+-----
+
+* Contacts wait at least 10 seconds after teleporting on Opportunity close
+* Fix for race condition which caused player to fall out of world on login
+* New level build is animated
+* Show Chatter feed when interacting with Account or Opportunity signs
+* Try to delete Contact when entity is killed
+
 0.1.5
 -----
 

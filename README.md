@@ -13,7 +13,7 @@ Each Salesforce Contact is represented by a Villager-derived entity, with the Co
 
 ![Contact](http://metadaddy-sfdc.github.io/Forcecraft/Contact.png)
 
-Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact and allow you to post to the feed.
+Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact and allow you to post to the feed. Similarly, Account and Opportunity signs give access to the respective Chatter feeds.
 
 ![Contact Feed](http://metadaddy-sfdc.github.io/Forcecraft/ContactFeed.png)
 
@@ -44,6 +44,7 @@ Running the mod
 
 block {
     I:stage=3500
+    I:chatterSign=3501
 }
 
 
@@ -64,7 +65,7 @@ Edit this, and save it as
 * Mac: `~/Library/Application Support/minecraft/config/Forcecraft.cfg`
 * Windows: `%appdata%/.minecraft/config/Forcecraft.cfg`
 
-You MUST edit the username and password entries. If you are using a Salesforce sandbox, change the loginHost to test.salesforce.com. If you are using another mod that has already taken the 3500 block ID, you can also modify that.
+You MUST edit the username and password entries. If you are using a Salesforce sandbox, change the loginHost to test.salesforce.com. If you are using another mod that has already taken the 3500+ block IDs, you can also modify that.
 
 Run Minecraft and select the Forge profile. If all is well, you should see Forcecraft listed on the Mods screen. Start Minecraft as a single player and create a new world, in creative mode.
 
