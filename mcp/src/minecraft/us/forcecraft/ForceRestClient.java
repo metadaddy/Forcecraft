@@ -431,24 +431,7 @@ public class ForceRestClient {
             httppost.setEntity(new StringEntity(formatter.format(json),
                     ContentType.create("application/json", Consts.UTF_8)));
 
-            // Create a custom response handler
-            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
-
-                public String handleResponse(
-                        final HttpResponse response) throws ClientProtocolException, IOException {
-                    int status = response.getStatusLine().getStatusCode();
-                    if (status >= 200 && status < 300) {
-                        return response.getStatusLine().toString();
-                    } else {
-                    	HttpEntity entity = response.getEntity();
-                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
-                        throw new ClientProtocolException("Unexpected response status: " + status);
-                    }
-                }
-
-            };
-
-            System.out.println("executing async POST " + httppost.getURI());
+            System.out.println("executing " + (wait ? "sync" : "async") + " POST " + httppost.getURI());
 
             Future<HttpResponse> future = httpclient.execute(httppost, null);
             
