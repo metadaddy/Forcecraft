@@ -16,6 +16,7 @@ public class ConfigHandler {
 		
 		Forcecraft.dimensionId = config.get(Configuration.CATEGORY_GENERAL, Forcecraft.DIMENSION_ID_NAME, Forcecraft.DIMENSION_ID_DEFAULT).getInt();
 		Forcecraft.stageBlockId = config.getBlock(Forcecraft.STAGE_BLOCK_NAME, Forcecraft.STAGE_BLOCK_ID_DEFAULT).getInt();
+		Forcecraft.chatterSignBlockId = config.getBlock(Forcecraft.CHATTER_SIGN_BLOCK_NAME, Forcecraft.CHATTER_SIGN_BLOCK_ID_DEFAULT).getInt();
 
 		config.save();
 	}

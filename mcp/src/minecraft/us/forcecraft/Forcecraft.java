@@ -4,16 +4,12 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Teleporter;
 import net.minecraftforge.common.DimensionManager;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
-import net.minecraftforge.event.world.WorldEvent;
 import argo.jdom.JsonNode;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -29,24 +25,29 @@ import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid="Forcecraft", name="Forcecraft", version="0.1.5")
+@Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.6")
 @NetworkMod(clientSideRequired=true, 
-	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CONTACT_CHANNEL }, packetHandler = ClientPacketHandler.class), 
+	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ClientPacketHandler.class), 
 	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
+	public static final String FORCECRAFT = "Forcecraft";
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
 	public static final int STAGE_BLOCK_ID_DEFAULT = 3500;
 	public static int stageBlockId = STAGE_BLOCK_ID_DEFAULT;
+	public static final int CHATTER_SIGN_BLOCK_ID_DEFAULT = 3501;
+	public static int chatterSignBlockId = CHATTER_SIGN_BLOCK_ID_DEFAULT;
 	
 	public static final String STAGE_BLOCK_NAME = "stage";
+	public static final String CHATTER_SIGN_BLOCK_NAME = "chatterSign";
 	public static final String DIMENSION_ID_NAME = "dimensionId";
 	public static final String LOGIN_HOST_KEY = "loginHost";
 	public static final String USERNAME_KEY = "username";
 	public static final String PASSWORD_KEY = "password";
-	public static final String CONTACT_CHANNEL = "FC|Contact";
 	public static final String CHATTER_CHANNEL = "FC|Chatter";
 
 	public static int groundLevel = 8;
@@ -69,7 +70,11 @@ public class Forcecraft {
 	@SidedProxy(clientSide="us.forcecraft.client.ClientProxy", serverSide="us.forcecraft.CommonProxy")
 	public static CommonProxy proxy;
 	
+	static Block chatterSignBlock;
 	static Block stageBlock;
+	
+	public ForcecraftTickHandler tickHandler = new ForcecraftTickHandler();
+	public ForcecraftGenerator generator = new ForcecraftGenerator();
 	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event)
@@ -97,15 +102,25 @@ public class Forcecraft {
         	.setTextureName("stone");
 		LanguageRegistry.instance().addStringLocalization(STAGE_BLOCK_NAME, "en_US",  "Stage");
         GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
-        
         GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
+        
+		// BlockChatterSign is a special sign block associated with an account
+		chatterSignBlock = new BlockChatterSign(chatterSignBlockId, TileEntityChatterSign.class, false)
+        	.setHardness(1.0F)
+        	.setStepSound(Block.soundWoodFootstep)
+        	.setUnlocalizedName("sign");
+		LanguageRegistry.instance().addStringLocalization(CHATTER_SIGN_BLOCK_NAME, "en_US",  "Account Sign");
+        GameRegistry.registerBlock(stageBlock, CHATTER_SIGN_BLOCK_NAME);        
+        GameRegistry.registerTileEntity(TileEntityChatterSign.class, CHATTER_SIGN_BLOCK_NAME);
+        
+        TickRegistry.registerTickHandler(tickHandler, Side.SERVER);
 	}
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 		
-		GameRegistry.registerWorldGenerator(new ForcecraftGenerator());
+		GameRegistry.registerWorldGenerator(generator);
 		
 		EntityRegistry.registerGlobalEntityID(EntityContact.class, "Contact", EntityRegistry.findGlobalUniqueEntityId());
 		DimensionManager.registerProviderType(dimensionId, ForcecraftWorldProvider.class, false);

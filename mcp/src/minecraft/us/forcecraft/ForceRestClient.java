@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -18,12 +19,15 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -97,7 +101,7 @@ public class ForceRestClient {
     				"FROM Account "+
         			"ORDER BY CreatedDate";
             HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-            		"/services/data/v29.0/queryAll?q="+URLEncoder.encode(query, "UTF-8"));
+            		"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
             
             httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
             
@@ -399,9 +403,16 @@ public class ForceRestClient {
 	}
 
 	public void postToChatter(String recordId, String post) {
+		postToChatter(recordId, post, true);
+	}
+		
+	public void postToChatter(String recordId, String post, boolean wait) {
 		JsonRootNode root = null;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+		// Do an async request - we don't really care about the response, at least for now
+        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
         try {
+        	httpclient.start();
+        	
 			System.out.println("Creating Chatter post");
 			
         	HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
@@ -421,6 +432,44 @@ public class ForceRestClient {
             httppost.setEntity(new StringEntity(formatter.format(json),
                     ContentType.create("application/json", Consts.UTF_8)));
 
+            System.out.println("executing " + (wait ? "sync" : "async") + " POST " + httppost.getURI());
+
+            Future<HttpResponse> future = httpclient.execute(httppost, null);
+            
+            if (wait) {
+            	 HttpResponse response = future.get();
+                 int status = response.getStatusLine().getStatusCode();
+                 if (status >= 200 && status < 300) {
+                     System.out.println("----------------------------------------");
+                     System.out.println(response.getStatusLine().toString());
+                     System.out.println("----------------------------------------");            	 
+                 } else {
+                 	HttpEntity entity = response.getEntity();
+                 	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
+                    throw new ClientProtocolException("Unexpected response status: " + status);
+                 }
+            }
+            // TODO - put Future object on a list and periodically check isDone() so we can log the response
+		} catch (Exception e) {
+			e.printStackTrace();
+        } finally {
+        	try {
+        		httpclient.close();
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
+        }
+	}
+	
+	public void delete(String objectType, String recordId) throws Exception {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            HttpDelete httpdelete = new HttpDelete(oauth.getStringValue("instance_url")+
+            		"/services/data/v29.0/sobjects/"+objectType+"/"+recordId);
+            
+            httpdelete.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
+            
+
             // Create a custom response handler
             ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 
@@ -430,28 +479,20 @@ public class ForceRestClient {
                     if (status >= 200 && status < 300) {
                         return response.getStatusLine().toString();
                     } else {
-                    	HttpEntity entity = response.getEntity();
-                    	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
                         throw new ClientProtocolException("Unexpected response status: " + status);
                     }
                 }
 
             };
 
-            System.out.println("executing POST " + httppost.getURI());
+            System.out.println("executing DELETE " + httpdelete.getURI());
 
-            String responseBody = httpclient.execute(httppost, responseHandler);
+            String responseBody = httpclient.execute(httpdelete, responseHandler);
             System.out.println("----------------------------------------");
             System.out.println(responseBody);
             System.out.println("----------------------------------------");
-		} catch (Exception e) {
-			e.printStackTrace();
         } finally {
-        	try {
-        		httpclient.close();
-    		} catch (Exception e) {
-    			e.printStackTrace();
-    		}
+            httpclient.close();
         }
 	}
 }

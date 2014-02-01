@@ -58,29 +58,6 @@ public class TileEntityStageBlock extends TileEntity
         		par1NBTTagCompound.getString(Forcecraft.STAGE_BLOCK_NAME));
     }
 
-    /**
-     * Return the position for this command sender.
-     */
-    public ChunkCoordinates getPlayerCoordinates()
-    {
-        return new ChunkCoordinates(this.xCoord, this.yCoord, this.zCoord);
-    }
-
-    public World getEntityWorld()
-    {
-        return this.getWorldObj();
-    }
-
-    /**
-     * Overriden in a sign to provide the text.
-     */
-    public Packet getDescriptionPacket()
-    {
-        NBTTagCompound nbttagcompound = new NBTTagCompound();
-        this.writeToNBT(nbttagcompound);
-        return new Packet132TileEntityData(this.xCoord, this.yCoord, this.zCoord, 2, nbttagcompound);
-    }
-
 	public void setOpportunityStage(String oppyId, String stage) {
 		this.opportunityId = oppyId;
 		this.stage = stage;

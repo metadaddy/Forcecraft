@@ -1,22 +1,216 @@
 package us.forcecraft;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 
 import net.minecraft.block.Block;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import argo.jdom.JsonNode;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.IWorldGenerator;
-import cpw.mods.fml.common.Loader;
 
 public class ForcecraftGenerator implements IWorldGenerator {
+	interface IBlockReceiver {
+		public void setBlock(int x, int y, int z, int blockID, int metadata, int flags);
+
+		public void setStageEntity(int x, int y, int z, String stringValue,
+				String stringValue2);
+
+		public void setSignEntity(int x, int y, int z, String[] splitIntoLines);
+
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] splitIntoLines, String name, String stringValue);
+	}
+	
+	class DefaultBlockReceiver implements IBlockReceiver {
+		World world;
+		
+		public DefaultBlockReceiver(World world) {
+			this.world = world;
+		}
+		
+		@Override
+		public void setBlock(int x, int y, int z, int blockID, int metadata, int flags) {
+			world.setBlock(x, y, z, blockID, metadata, flags);
+		}
+
+		@Override
+		public void setStageEntity(int x, int y, int z, String oppyId, String stage) {
+    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(x, y, z);
+    		tileentitystageblock.setOpportunityStage(oppyId, stage);
+		}
+
+		@Override
+		public void setSignEntity(int x, int y, int z, String[] text) {
+    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(x, y, z);
+            tileentitysign.signText = text;
+            tileentitysign.onInventoryChanged();
+            world.markBlockForUpdate(x, y, z);
+		}
+
+		@Override
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] text, String name, String id) {
+    		TileEntityChatterSign tileentitychattersign = (TileEntityChatterSign)world.getBlockTileEntity(x, y, z);
+    		tileentitychattersign.signText = text;
+    		tileentitychattersign.accountId = id;
+    		tileentitychattersign.accountName = name;
+    		tileentitychattersign.onInventoryChanged();
+            world.markBlockForUpdate(x, y, z);
+		}
+	}
+	
+	class BlockCollector implements IBlockReceiver {
+		class Record {			
+			int x;
+			int y;
+			int z;
+			
+			public Record(int x, int y, int z){
+				this.x = x;
+				this.y = y;
+				this.z = z;				
+			}
+		}
+		
+		class BlockRecord extends Record {
+			int blockID;
+			int metadata;
+			int flags;
+			
+			public BlockRecord(int x, int y, int z, int blockID, int metadata, int flags) {
+				super(x, y, z);
+				this.blockID = blockID;
+				this.metadata = metadata;
+				this.flags = flags;
+			}
+			
+			public void setBlock() {
+				world.setBlock(x, y, z, blockID, metadata, flags);
+			}
+		}
+		
+		class StageRecord extends Record {
+			String oppyId;
+			String stage;
+			
+			public StageRecord(int x, int y, int z, String oppyId, String stage) {
+				super(x, y, z);
+				this.oppyId = oppyId;
+				this.stage = stage;
+			}
+			
+			public void setStage() {
+	    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(x, y, z);
+	    		tileentitystageblock.setOpportunityStage(oppyId, stage);
+			}
+		}
+		
+		class SignRecord extends Record {
+			String[] text;
+			
+			public SignRecord(int x, int y, int z, String[] text) {
+				super(x, y, z);
+				this.text = text;
+			}
+			
+			public void setSign() {
+	    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(x, y, z);
+	            tileentitysign.signText = text;
+                tileentitysign.onInventoryChanged();
+                world.markBlockForUpdate(x, y, z);
+			}
+		}
+		
+		class ChatterSignRecord extends SignRecord {
+			String accountId;
+			String accountName;
+			
+			public ChatterSignRecord(int x, int y, int z, String[] text, String accountId, String accountName) {
+				super(x, y, z, text);
+				this.accountId = accountId;
+				this.accountName = accountName;
+			}
+			
+			public void setSign() {
+	    		TileEntityChatterSign tileentitychattersign = (TileEntityChatterSign)world.getBlockTileEntity(x, y, z);
+	    		tileentitychattersign.signText = text;
+	    		tileentitychattersign.accountId = accountId;
+	    		tileentitychattersign.accountName = accountName;
+	    		tileentitychattersign.onInventoryChanged();
+                world.markBlockForUpdate(x, y, z);
+			}
+		}
+		
+		World world;
+		public List<BlockRecord> blocks;
+		public List<StageRecord> stages;
+		public List<SignRecord> signs;
+		
+		public BlockCollector(World world) {
+			this.world = world;
+			this.blocks = new ArrayList<BlockRecord>();
+			this.stages = new ArrayList<StageRecord>();
+			this.signs = new ArrayList<SignRecord>();
+		}
+		
+		@Override
+		public void setBlock(int x, int y, int z, int blockID, int metadata, int flags) {
+			blocks.add(new BlockRecord(x, y, z, blockID, metadata, flags));
+		}
+
+		@Override
+		public void setStageEntity(int x, int y, int z, String oppyId, String stage) {
+			stages.add(new StageRecord(x, y, z, oppyId, stage));
+		}
+
+		@Override
+		public void setSignEntity(int x, int y, int z, String[] text) {
+			signs.add(new SignRecord(x, y, z, text));
+		}
+		
+		public void shuffle() {
+		    Random rnd = new Random();
+		    for (int i = blocks.size() - 1; i > 0; i--)
+		    {
+		      int index = rnd.nextInt(i + 1);
+		      // Simple swap
+		      BlockRecord a = blocks.get(index);
+		      blocks.set(index, blocks.get(i));
+		      blocks.set(i, a);
+		    }			
+		}
+		
+		public void replayBlocks(int n) {
+			n = Math.min(n, blocks.size());
+			for (int i = 0; i < n; i++) {
+				blocks.remove(0).setBlock();
+			}
+		}
+
+		public void replayEntities() {
+			for (int i = 0; i < signs.size(); i++) {
+				signs.get(i).setSign();
+			}
+			signs.clear();
+			for (int i = 0; i < stages.size(); i++) {
+				stages.get(i).setStage();
+			}
+			stages.clear();
+		}
+
+		@Override
+		public void setChatterSignEntity(int x, int y, int z,
+				String[] text, String name, String id) {
+			signs.add(new ChatterSignRecord(x, y, z, text, name, id));
+		}
+	}
+	
 	private static final int STORY_HEIGHT = 5;
 	
 	@Override
@@ -122,6 +316,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    	JsonNode acct = records.get(n);
 	    	
 	    	if (!acct.getBooleanValue("IsDeleted")) {
+	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
 		    	try {
@@ -131,15 +326,24 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    			// No data
 	    		}
 	            
+		    	DefaultBlockReceiver receiver = new DefaultBlockReceiver(world);
 	            for (int l = 0; l < height; l++) {
-	        		generateLevel(world, chunkX, chunkZ, l, acct, 
+	        		generateLevel(chunkX, chunkZ, l, acct, 
 	        				((oppys != null) && (l < oppys.size())) ? oppys.get(l) : null, 
-	        				Forcecraft.instance.stages);
+	        				Forcecraft.instance.stages, receiver);
 	            }
-	            generateRoof(world, chunkX, chunkZ, height);
+	            generateRoof(chunkX, chunkZ, height, receiver);
 	            generateContacts(world, n, chunkX, chunkZ, height, records);
 	    	}	    	
 		}
+	}
+	
+	public void addNewLevel(World world, JsonNode acct, JsonNode oppy, int index, int chunkX, int chunkZ) {
+		BlockCollector collector = new BlockCollector(world);
+		generateLevel(chunkX, chunkZ, index, acct, oppy, Forcecraft.instance.stages, collector);
+		generateRoof(chunkX, chunkZ, index + 1, collector);
+		collector.shuffle();
+		Forcecraft.instance.tickHandler.setCollector(collector);
 	}
 
 	private void generateContacts(World world, int n, int chunkX, int chunkZ, int height, List<JsonNode> records) {
@@ -164,8 +368,8 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		}
 	}
 
-	private void generateLevel(World world, int chunkX, int chunkZ, int l,
-			JsonNode acct, JsonNode oppy, List<JsonNode> stages) {
+	private void generateLevel(int chunkX, int chunkZ, int l,
+			JsonNode acct, JsonNode oppy, List<JsonNode> stages, IBlockReceiver receiver) {
 		// i, j, k are world co-ordinates of lower front right corner of floor
 		int i = (chunkX * 16) + 4,
 			j = Forcecraft.groundLevel + (l*STORY_HEIGHT),
@@ -193,7 +397,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	        			if ((y == 2 || y == 3) && // Window height
 	        					((x == 2 || x == 3 || x == 8 || x == 9) || // side windows 
 	        							((l > 0 || z == 11 || y == 3) && (x == 5 || x == 6)))) { // front/back windows
-	        				world.setBlock(p, q, r, Block.glass.blockID, 0, 2);
+	        				receiver.setBlock(p, q, r, Block.glass.blockID, 0, 2);
 	        			} else if ((l == 0 && z == 0) && (x == 5 || x == 6) && (y == 1 || y == 2)) {
 	        				if (y == 2) {
 	        					// top half
@@ -205,41 +409,39 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	        					// bottom half
 	        					metadata = 0x1; // face north when closed
 	        				}
-	        				world.setBlock(p, q, r, Block.doorWood.blockID, metadata, 2);
+	        				receiver.setBlock(p, q, r, Block.doorWood.blockID, metadata, 2);
 	        			} else if (oppy != null && y==3 && x == 0 && z > 0 && z < 11) { // Stage Block
 		    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
 		    					metadata = 0x1; // Block is 'on'
 		    				}
-		    	    		world.setBlock(p, q, r, Forcecraft.stageBlockId, metadata, 2);
-		    	    		TileEntityStageBlock tileentitystageblock = (TileEntityStageBlock)world.getBlockTileEntity(p, q, r);
-		    	    		tileentitystageblock.setOpportunityStage(oppy.getStringValue("Id"), 
+		    				receiver.setBlock(p, q, r, Forcecraft.stageBlockId, metadata, 2);
+		    				receiver.setStageEntity(p, q, r, oppy.getStringValue("Id"), 
 		    	    				stages.get(10-z).getStringValue("label"));
 		    			} else {
-		    				world.setBlock(p, q, r, wallBlock, 0, 2);
+		    				receiver.setBlock(p, q, r, wallBlock, 0, 2);
 		    			}
 	    			} else if (y == 0 && (x < 10 || (z < 4 || z > 8))) { // ceiling
 	    				int blockID = Block.blockNetherQuartz.blockID;
 	    				if ((x == 2 || x == 4 || x == 6 || x == 8) && z > 1 && z < 8) {
 	    					blockID = Block.glowStone.blockID; // 'lights'
 	    				}
-	    				world.setBlock(p, q, r, blockID, 0, 2);
+	    				receiver.setBlock(p, q, r, blockID, 0, 2);
 	    			} else if (x == 10 && ((y > 0 && z == (y + 3)) || (l > 0 && y == 0 && z == 8))) { // stairs
-	    				world.setBlock(p, q, r, Block.stairsWoodOak.blockID, 0x2, 2);
+	    				receiver.setBlock(p, q, r, Block.stairsWoodOak.blockID, 0x2, 2);
 	    			} else if (y == 1 && (l == 0 || x < 10 || (z < 4 || z > 8))) { // floor
 	    				if ((x + z) % 2 == 0) {
 	    					metadata = 11; // blue carpet, otherwise white carpet
 	    				}
-	    				world.setBlock(p, q, r, Block.carpet.blockID, metadata, 2);
+	    				receiver.setBlock(p, q, r, Block.carpet.blockID, metadata, 2);
 	    			} else if (oppy != null && y==2 && x == 1 && z > 0 && z < 11) { // Stage sign
-    		    		world.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
-    		    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-    		            tileentitysign.signText = splitIntoLines(stages.get(10-z).getStringValue("label"), 15, 4);
+	    				receiver.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
+	    				receiver.setSignEntity(p, q, r, splitIntoLines(stages.get(10-z).getStringValue("label"), 15, 4));
 	    			} else if (oppy != null && y==3 && x == 1 && z > 0 && z < 11) { // Stage lever
 	    				metadata = 0x1; // Face east
 	    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
 	    					metadata |= 0x8; // Lever is 'on'
 	    				}
-	    				world.setBlock(p, q, r, Block.lever.blockID, metadata, 2);
+	    				receiver.setBlock(p, q, r, Block.lever.blockID, metadata, 2);
 	    			}
 	    		}
 	    	}
@@ -248,21 +450,21 @@ public class ForcecraftGenerator implements IWorldGenerator {
     	// Opportunity Name
     	if (oppy != null) {
         	p = i+1; q = j+4; r = k+5;
-    		world.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
-    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-            tileentitysign.signText = splitIntoLines(oppy.getStringValue("Name"), 15, 4);
+        	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 5 /* Face east */, 2);
+        	String name = oppy.getStringValue("Name");
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, oppy.getStringValue("Id"));
     	}
         
     	if (l == 0) {
     		// Account Name
         	p = i+4; q = j+2; r = k-1;
-    		world.setBlock(p, q, r, Block.signWall.blockID, 2 /* Face north */, 2);
-    		TileEntitySign tileentitysign = (TileEntitySign)world.getBlockTileEntity(p, q, r);
-            tileentitysign.signText = splitIntoLines(acct.getStringValue("Name"), 15, 4);
+        	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 2 /* Face north */, 2);
+        	String name = acct.getStringValue("Name");
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, acct.getStringValue("Id"));
     	}
 	}
 
-	private void generateRoof(World world, int chunkX, int chunkZ, int height) {
+	private void generateRoof(int chunkX, int chunkZ, int height, IBlockReceiver receiver) {
 		// i, j, k are world co-ordinates of lower front right corner of floor
 		int i = (chunkX * 16) + 4,
 			j = Forcecraft.groundLevel + (height*STORY_HEIGHT),
@@ -275,17 +477,17 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    			int p = i+x, q = j+y, r = k+z;
 	    			
 	        		if (x == 0 || x == 11 || z == 0 || z == 11) { // Walls
-	        			world.setBlock(p, q, r, Block.stone.blockID, 0, 2);
+	        			receiver.setBlock(p, q, r, Block.stone.blockID, 0, 2);
 	    			} else if (y == 0 && (x < 10 || (z < 4 || z > 8))) { // ceiling
 	    				int blockID = Block.blockNetherQuartz.blockID;
 	    				if ((x == 3 || x == 8) && z > 1 && z < 10) {
 	    					blockID = Block.glowStone.blockID; // 'lights'
 	    				}
-	    				world.setBlock(p, q, r, blockID, 0, 2);
+	    				receiver.setBlock(p, q, r, blockID, 0, 2);
 	    			} else if (y == 0 && z == 8) { // stairs
-	    				world.setBlock(p, q, r, Block.stairsWoodOak.blockID, 0x2, 2);
+	    				receiver.setBlock(p, q, r, Block.stairsWoodOak.blockID, 0x2, 2);
 	    			} else if (y == 1 && (x < 10 || (z < 4 || z > 8))) { // floor
-	    				world.setBlock(p, q, r, Block.stoneSingleSlab.blockID, 0, 2);
+	    				receiver.setBlock(p, q, r, Block.stoneSingleSlab.blockID, 0, 2);
 	    			}
 	    		}
 	    	}

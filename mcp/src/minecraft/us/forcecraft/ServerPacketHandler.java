@@ -33,7 +33,7 @@ public class ServerPacketHandler implements IPacketHandler {
         	Forcecraft.instance.client.postToChatter(contactId, post);
         	
         	// Update chatter GUI
-            EntityContact.showChatter((EntityPlayerMP)player, windowId, contactId, "");
+            GuiContact.showChatter((EntityPlayerMP)player, windowId, contactId, "");
         } catch (Exception e) {
             e.printStackTrace();
             return;

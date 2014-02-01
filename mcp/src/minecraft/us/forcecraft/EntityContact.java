@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import net.minecraft.entity.ai.EntityAIBase;
+import net.minecraft.entity.ai.EntityAIFollowGolem;
+import net.minecraft.entity.ai.EntityAITaskEntry;
+import net.minecraft.entity.ai.EntityAIVillagerMate;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -19,23 +23,54 @@ import net.minecraft.world.World;
 public class EntityContact extends EntityVillager {
 	public static Map<String, EntityContact> contactMap = new HashMap<String, EntityContact>();
 	private static Random rand = new Random();
+	private static final Class[] unwantedAI = { 
+		EntityAIVillagerMate.class,
+		EntityAIFollowGolem.class
+	};
 	String id;
+	long oppyCloseTime = 0;
 
 	public EntityContact(World par1World) {
-		super(par1World);
-		
-		this.id = null;
+		this(par1World, null);
 	}
 
 	public EntityContact(World par1World, String id) {
 		super(par1World, rand.nextInt(6)); // 6 villager professions
 		
+		overrideAI();
+		
+		this.tasks.addTask(0, new EntityAIWaitOnOppyClose(this));
+		
 		this.id = id;
 		addToContactMap();
 	}
 	
+	private EntityAIBase findTask(Class taskClass) {
+		for (Object o : tasks.taskEntries) {
+			EntityAITaskEntry taskEntry = (EntityAITaskEntry)o;
+			if (taskEntry.action.getClass().equals(taskClass)) {
+				return taskEntry.action;
+			}
+		}
+		
+		return null;
+	}
+	
+	private void overrideAI() {
+		for (Class taskClass : unwantedAI) {
+			EntityAIBase task = findTask(taskClass);
+			if (task != null) {
+				tasks.removeTask(task);
+			}			
+		}
+	}
+
 	private void addToContactMap() {
-		contactMap.put(this.id, this);		
+		contactMap.put(id, this);		
+	}
+
+	private void removeFromContactMap() {
+		contactMap.remove(id);	
 	}
 
     /**
@@ -95,7 +130,7 @@ public class EntityContact extends EntityVillager {
         {
             if (!this.worldObj.isRemote)
             {
-            	displayChatterGUI((EntityPlayerMP)par1EntityPlayer);
+            	GuiContact.displayChatterGUI((EntityPlayerMP)par1EntityPlayer, id, getCustomNameTag());
             }
 
             return true;
@@ -106,26 +141,29 @@ public class EntityContact extends EntityVillager {
         }
     }
 
-	private void displayChatterGUI(EntityPlayerMP player) {
-		player.incrementWindowID();
-		
-		showChatter(player, player.currentWindowId, id, getCustomNameTag());
+	public long getOppyCloseTime() {
+		return this.oppyCloseTime;
 	}
 	
-	public static void showChatter(EntityPlayerMP player, int windowId, String contactId, String contactName) {
-        try
-        {
-            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
-            os.writeInt(windowId);
-            os.writeObject(contactId);
-            os.writeObject(contactName);
-            os.writeObject(Forcecraft.instance.client.getFeed(contactId));
-            player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CONTACT_CHANNEL, bytearrayoutputstream.toByteArray()));
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-        }		
+	public void setOppyCloseTime(long time) {
+		this.oppyCloseTime = time;
 	}
+	
+	@Override
+    public void setDead()
+    {
+        if (!this.worldObj.isRemote)
+        {
+        	removeFromContactMap();
+        	try {
+        		// NOTE - this can fail if the Contact is associated with Cases etc
+        		// TODO: Need to figure out how to handle failure - reanimate Contact? 
+        		Forcecraft.instance.client.delete("Contact", id);
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        	}
+        }
+    	
+        super.setDead();
+    }
 }

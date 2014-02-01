@@ -1,5 +1,9 @@
 package us.forcecraft;
 
+import static argo.jdom.JsonNodeFactories.field;
+import static argo.jdom.JsonNodeFactories.object;
+import static argo.jdom.JsonNodeFactories.string;
+
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -37,13 +41,17 @@ public class OpportunityListener implements MessageListener {
 				return;
 			}
 			
+			String eventType = root.getStringValue("data", "event", "type");
+			if (eventType.equals("deleted")) {
+				// TODO...
+				return;
+			}
+			
 			JsonNode sobject = root.getNode("data", "sobject");
 			String oppyId = sobject.getStringValue("Id");
 			String oppyName = sobject.getStringValue("Name");
 			String stage = sobject.getStringValue("StageName");
 			String accountId = sobject.getStringValue("AccountId");
-			
-			String eventType = root.getStringValue("data", "event", "type");
 			
 			if (eventType.equals("created")) {
 				// Regenerate the chunk, to add levers or build a new floor...
@@ -52,13 +60,26 @@ public class OpportunityListener implements MessageListener {
 					String acctId = acct.getStringValue("Id");
 					if (acct.getStringValue("Id").substring(0,15).equals(accountId.substring(0,15))) {
 						int[] chunkCoords = ForcecraftGenerator.getPointDiscreteSpiral(n);
-						ChunkProviderServer cps = MinecraftServer.getServer().worldServerForDimension(Forcecraft.dimensionId).theChunkProviderServer;
+						WorldServer worldserver = MinecraftServer.getServer().worldServerForDimension(Forcecraft.dimensionId);
+						ChunkProviderServer cps = worldserver.theChunkProviderServer;
 						if (cps.chunkExists(chunkCoords[0], chunkCoords[1])) {
 							System.out.println("Reloading accounts");
 							Forcecraft.instance.accounts = Forcecraft.instance.client.getAccounts();
 							System.out.println("Repopulating chunk at ("+chunkCoords[0]+", "+chunkCoords[1]+")");
-							cps.loadChunk(chunkCoords[0], chunkCoords[1]).isTerrainPopulated = false;
-							cps.populate(cps, chunkCoords[0], chunkCoords[1]);
+							Chunk chunk = cps.loadChunk(chunkCoords[0], chunkCoords[1]);
+							
+							// The opportunity doesn't seem to be on the Account yet...
+							List<JsonNode> oppys = acct.getNode("Opportunities", "records").getElements();
+							int index = oppys.size();
+							JsonNode oppy = oppys.get(index - 1);
+							if (!oppy.getStringValue("Id").equals("oppyId")) {
+								oppy = object(
+					                field("Id", string(oppyId)),
+					                field("Name", string(oppyName)),
+					                field("StageName", string(stage))
+					            );								
+							}
+							Forcecraft.instance.generator.addNewLevel(worldserver, acct, oppy, index, chunkCoords[0], chunkCoords[1]);
 						} // If the chunk doesn't exist, it will be current when it is created later
 						break;
 					}
@@ -79,30 +100,37 @@ public class OpportunityListener implements MessageListener {
 				EntityPlayerMP player = (EntityPlayerMP)MinecraftServer.getServer().getConfigurationManager().playerEntityList.get(0);
 				
 				if (stage.equals("Closed Won")) {					
+					String amount = root.getNumberValue("data", "sobject", "Amount");							
+					String post = "Congratulations! Opportunity closed: " + oppyName + ", for $"+amount;
+					player.addChatMessage(post);
+					
 					List<JsonNode> records = Forcecraft.instance.accounts.getNode("records").getElements();
 					for (int i = 0; i < records.size(); i++) {
 						String id = records.get(i).getStringValue("Id");
 						if (id.equals(accountId)) {
 							List<JsonNode> contacts = records.get(i).getNode("Contacts", "records").getElements();
-							EntityContact entityContact = EntityContact.contactMap.get(contacts.get(0).getStringValue("Id"));
+							EntityContact entityContact = null;
 							
-							Vec3 playerPos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ); 
-							Vec3 look = player.getLook(1.0F);
-							Vec3 pos = playerPos.addVector(look.xCoord, 0, look.zCoord);
-
-							entityContact.setPositionAndUpdate(pos.xCoord, pos.yCoord, pos.zCoord);
-							
-							String amount = root.getNumberValue("data", "sobject", "Amount");							
-							String post = "Congratulations! Opportunity closed: " + oppyName + ", for $"+amount;
-							
-							Forcecraft.instance.client.postToChatter(entityContact.id, post);
-							
-							player.addChatMessage(post);
-							
-							List<int[]> items = EntityContact.getTreasure(Double.valueOf(amount));
-							for (int j = 0; j < items.size(); j++) {
-								entityContact.dropItem(items.get(j)[0], items.get(j)[1]);								
+							for (int j = 0; entityContact == null && j < contacts.size(); j++) {
+								entityContact = EntityContact.contactMap.get(contacts.get(j).getStringValue("Id"));								
 							}
+							
+							if (entityContact != null) {
+								Vec3 playerPos = Vec3.createVectorHelper(player.posX, player.posY, player.posZ); 
+								Vec3 look = player.getLook(1.0F);
+								Vec3 pos = playerPos.addVector(look.xCoord, 0, look.zCoord);
+
+								entityContact.setOppyCloseTime(MinecraftServer.getSystemTimeMillis());
+								entityContact.setPositionAndUpdate(pos.xCoord, pos.yCoord, pos.zCoord);
+																								
+								List<int[]> items = EntityContact.getTreasure(Double.valueOf(amount));
+								for (int j = 0; j < items.size(); j++) {
+									entityContact.dropItem(items.get(j)[0], items.get(j)[1]);								
+								}
+								
+								Forcecraft.instance.client.postToChatter(entityContact.id, post);
+							}														
+							break;
 						}
 					}
 				} else if (stage.equals("Closed Lost")) {
