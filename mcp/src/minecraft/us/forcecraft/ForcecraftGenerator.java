@@ -382,8 +382,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 			amount = 0.0;
 		}
 		
-		int wallBlock = (amount > 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
-
+		int wallBlock = (amount >= 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
         
 		// x, y, x are relative to lower front right corner of floor
     	for (int x = 0; x < 12; x++) {
