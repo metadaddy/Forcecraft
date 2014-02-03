@@ -10,7 +10,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -26,8 +25,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -403,16 +400,10 @@ public class ForceRestClient {
 	}
 
 	public void postToChatter(String recordId, String post) {
-		postToChatter(recordId, post, true);
-	}
-		
-	public void postToChatter(String recordId, String post, boolean wait) {
 		JsonRootNode root = null;
 		// Do an async request - we don't really care about the response, at least for now
-        CloseableHttpAsyncClient httpclient = HttpAsyncClients.createDefault();
+        CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-        	httpclient.start();
-        	
 			System.out.println("Creating Chatter post");
 			
         	HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
@@ -432,24 +423,26 @@ public class ForceRestClient {
             httppost.setEntity(new StringEntity(formatter.format(json),
                     ContentType.create("application/json", Consts.UTF_8)));
 
-            System.out.println("executing " + (wait ? "sync" : "async") + " POST " + httppost.getURI());
+            // Create a custom response handler
+            ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+                public String handleResponse(
+                        final HttpResponse response) throws ClientProtocolException, IOException {
+                    int status = response.getStatusLine().getStatusCode();
+                    if (status >= 200 && status < 300) {
+                        return response.getStatusLine().toString();
+                    } else {
+                        throw new ClientProtocolException("Unexpected response status: " + status);
+                    }
+                }
 
-            Future<HttpResponse> future = httpclient.execute(httppost, null);
-            
-            if (wait) {
-            	 HttpResponse response = future.get();
-                 int status = response.getStatusLine().getStatusCode();
-                 if (status >= 200 && status < 300) {
-                     System.out.println("----------------------------------------");
-                     System.out.println(response.getStatusLine().toString());
-                     System.out.println("----------------------------------------");            	 
-                 } else {
-                 	HttpEntity entity = response.getEntity();
-                 	System.err.println("HTTP error "+status+"\n"+(entity != null ? EntityUtils.toString(entity) : ""));
-                    throw new ClientProtocolException("Unexpected response status: " + status);
-                 }
-            }
-            // TODO - put Future object on a list and periodically check isDone() so we can log the response
+            };
+
+            System.out.println("executing POST " + httppost.getURI());
+
+            String responseBody = httpclient.execute(httppost, responseHandler);
+            System.out.println("----------------------------------------");
+            System.out.println(responseBody);
+            System.out.println("----------------------------------------");
 		} catch (Exception e) {
 			e.printStackTrace();
         } finally {
