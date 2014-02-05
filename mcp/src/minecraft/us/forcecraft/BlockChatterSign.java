@@ -28,7 +28,7 @@ public class BlockChatterSign extends BlockSign {
             if (tileentity != null && tileentity instanceof TileEntityChatterSign)
             {
             	TileEntityChatterSign tileentityaccountblock = (TileEntityChatterSign)tileentity;
-            	GuiContact.displayChatterGUI((EntityPlayerMP)par5EntityPlayer, tileentityaccountblock.accountId, tileentityaccountblock.accountName);
+            	GuiChatter.displayChatterGUI((EntityPlayerMP)par5EntityPlayer, tileentityaccountblock.accountId, tileentityaccountblock.accountName);
             }        	
         }
         

@@ -130,7 +130,7 @@ public class EntityContact extends EntityVillager {
         {
             if (!this.worldObj.isRemote)
             {
-            	GuiContact.displayChatterGUI((EntityPlayerMP)par1EntityPlayer, id, getCustomNameTag());
+            	GuiChatter.displayChatterGUI((EntityPlayerMP)par1EntityPlayer, id, getCustomNameTag());
             }
 
             return true;
