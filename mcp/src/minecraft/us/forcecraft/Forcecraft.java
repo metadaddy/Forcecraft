@@ -28,7 +28,7 @@ import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.6")
+@Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.7")
 @NetworkMod(clientSideRequired=true, 
 	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ClientPacketHandler.class), 
 	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 

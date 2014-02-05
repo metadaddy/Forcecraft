@@ -1,3 +1,9 @@
+0.1.7
+-----
+
+* Make contacts wait a bit longer - 30 seconds
+* Minor refactoring, fixes
+
 0.1.6
 -----
 
