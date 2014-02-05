@@ -101,6 +101,11 @@ public class OpportunityListener implements MessageListener {
 					block.onBlockActivated(t.worldObj, leverX, t.yCoord, t.zCoord, null, 0, 0.0F, 0.0F, 0.0F);
 				}
 				
+				if (MinecraftServer.getServer().getConfigurationManager().playerEntityList.size() == 0) {
+					// No one playing!
+					return;
+				}
+				
 				// Basically assuming there is only one player for now
 				EntityPlayerMP player = (EntityPlayerMP)MinecraftServer.getServer().getConfigurationManager().playerEntityList.get(0);
 				
