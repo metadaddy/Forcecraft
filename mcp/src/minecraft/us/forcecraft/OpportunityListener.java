@@ -1,8 +1,6 @@
 package us.forcecraft;
 
-import static argo.jdom.JsonNodeFactories.field;
-import static argo.jdom.JsonNodeFactories.object;
-import static argo.jdom.JsonNodeFactories.string;
+import static argo.jdom.JsonNodeFactories.*;
 
 import java.util.List;
 
@@ -52,6 +50,12 @@ public class OpportunityListener implements MessageListener {
 			String oppyName = sobject.getStringValue("Name");
 			String stage = sobject.getStringValue("StageName");
 			String accountId = sobject.getStringValue("AccountId");
+			String amount;
+			try {
+				amount = sobject.getNumberValue("Amount");
+			} catch (IllegalArgumentException e) {
+				amount = "0";
+			}
 			
 			if (eventType.equals("created")) {
 				// Regenerate the chunk, to add levers or build a new floor...
@@ -76,7 +80,8 @@ public class OpportunityListener implements MessageListener {
 								oppy = object(
 					                field("Id", string(oppyId)),
 					                field("Name", string(oppyName)),
-					                field("StageName", string(stage))
+					                field("StageName", string(stage)),
+					                field("Amount", number(amount))
 					            );								
 							}
 							Forcecraft.instance.generator.addNewLevel(worldserver, acct, oppy, index, chunkCoords[0], chunkCoords[1]);
@@ -96,11 +101,15 @@ public class OpportunityListener implements MessageListener {
 					block.onBlockActivated(t.worldObj, leverX, t.yCoord, t.zCoord, null, 0, 0.0F, 0.0F, 0.0F);
 				}
 				
+				if (MinecraftServer.getServer().getConfigurationManager().playerEntityList.size() == 0) {
+					// No one playing!
+					return;
+				}
+				
 				// Basically assuming there is only one player for now
 				EntityPlayerMP player = (EntityPlayerMP)MinecraftServer.getServer().getConfigurationManager().playerEntityList.get(0);
 				
 				if (stage.equals("Closed Won")) {					
-					String amount = root.getNumberValue("data", "sobject", "Amount");							
 					String post = "Congratulations! Opportunity closed: " + oppyName + ", for $"+amount;
 					player.addChatMessage(post);
 					

@@ -24,7 +24,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		public void setSignEntity(int x, int y, int z, String[] splitIntoLines);
 
 		public void setChatterSignEntity(int x, int y, int z,
-				String[] splitIntoLines, String name, String stringValue);
+				String[] splitIntoLines, String id, String name);
 	}
 	
 	class DefaultBlockReceiver implements IBlockReceiver {
@@ -55,7 +55,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 
 		@Override
 		public void setChatterSignEntity(int x, int y, int z,
-				String[] text, String name, String id) {
+				String[] text, String id, String name) {
     		TileEntityChatterSign tileentitychattersign = (TileEntityChatterSign)world.getBlockTileEntity(x, y, z);
     		tileentitychattersign.signText = text;
     		tileentitychattersign.accountId = id;
@@ -206,8 +206,8 @@ public class ForcecraftGenerator implements IWorldGenerator {
 
 		@Override
 		public void setChatterSignEntity(int x, int y, int z,
-				String[] text, String name, String id) {
-			signs.add(new ChatterSignRecord(x, y, z, text, name, id));
+				String[] text, String id, String name) {
+			signs.add(new ChatterSignRecord(x, y, z, text, id, name));
 		}
 	}
 	
@@ -382,8 +382,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 			amount = 0.0;
 		}
 		
-		int wallBlock = (amount > 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
-
+		int wallBlock = (amount >= 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
         
 		// x, y, x are relative to lower front right corner of floor
     	for (int x = 0; x < 12; x++) {
@@ -452,7 +451,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
         	p = i+1; q = j+4; r = k+5;
         	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 5 /* Face east */, 2);
         	String name = oppy.getStringValue("Name");
-			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, oppy.getStringValue("Id"));
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), oppy.getStringValue("Id"), name);
     	}
         
     	if (l == 0) {
@@ -460,7 +459,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
         	p = i+4; q = j+2; r = k-1;
         	receiver.setBlock(p, q, r, Forcecraft.chatterSignBlockId, 2 /* Face north */, 2);
         	String name = acct.getStringValue("Name");
-			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), name, acct.getStringValue("Id"));
+			receiver.setChatterSignEntity(p, q, r, splitIntoLines(name, 15, 4), acct.getStringValue("Id"), name);
     	}
 	}
 

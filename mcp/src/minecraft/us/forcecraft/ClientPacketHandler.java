@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 import java.util.List;
 
-import us.forcecraft.GuiContact.ChatterEntry;
+import us.forcecraft.GuiChatter.ChatterEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
@@ -29,7 +29,7 @@ public class ClientPacketHandler implements IPacketHandler {
         int windowId;
         String contactId;
         String contactName;
-        List<GuiContact.ChatterEntry> chatterEntries;
+        List<GuiChatter.ChatterEntry> chatterEntries;
         
         try {
     		ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(packet.data));
@@ -47,11 +47,11 @@ public class ClientPacketHandler implements IPacketHandler {
         EntityClientPlayerMP entityclientplayermp = (EntityClientPlayerMP)player;
         GuiScreen guiscreen = mc.currentScreen;
 
-        if (guiscreen != null && guiscreen instanceof GuiContact && windowId == entityclientplayermp.openContainer.windowId) {
-        	GuiContact guiContact = (GuiContact)guiscreen;
+        if (guiscreen != null && guiscreen instanceof GuiChatter && windowId == entityclientplayermp.openContainer.windowId) {
+        	GuiChatter guiContact = (GuiChatter)guiscreen;
         	guiContact.setFeed(chatterEntries);
         } else {
-            Minecraft.getMinecraft().displayGuiScreen(new GuiContact(windowId, contactId, contactName, chatterEntries));
+            Minecraft.getMinecraft().displayGuiScreen(new GuiChatter(windowId, contactId, contactName, chatterEntries));
             entityclientplayermp.openContainer.windowId = windowId;        	
         }        
 	}

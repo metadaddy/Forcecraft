@@ -21,7 +21,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class GuiContact extends GuiScreen {
+public class GuiChatter extends GuiScreen {
 	static class ChatterEntry implements Serializable {
 		String name;
 		String text;
@@ -58,18 +58,18 @@ public class GuiContact extends GuiScreen {
 	}
 	
 	private int windowId;
-	private String contactId;
-	private String contactName;
+	private String id;
+	private String name;
 	private List<ChatterEntry> feed = null;
 	private static final int POST_HEIGHT = 22;
 	private static final int MAX_CHATTER_CHARS = 80;
 	private GuiTextField textfield;
 	private int yInput;
 
-	public GuiContact(int windowId, String contactId, String contactName, List<ChatterEntry> feed) {
+	public GuiChatter(int windowId, String id, String name, List<ChatterEntry> feed) {
 		this.windowId = windowId;
-		this.contactId = contactId;
-		this.contactName = contactName;
+		this.id = id;
+		this.name = name;
 		this.feed = feed;
 	}
 	
@@ -131,7 +131,7 @@ public class GuiContact extends GuiScreen {
 	                ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
 	                ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
 	                os.writeInt(windowId);
-	                os.writeObject(contactId);
+	                os.writeObject(id);
 	                os.writeObject(post);
 	                mc.getNetHandler().addToSendQueue(new Packet250CustomPayload(Forcecraft.CHATTER_CHANNEL, bytearrayoutputstream.toByteArray()));
 	            }
@@ -157,7 +157,7 @@ public class GuiContact extends GuiScreen {
 	{
 		drawDefaultBackground();
 			
-		drawCenteredString(fontRenderer, contactName, width / 2, 15, 0xFFFFFF);
+		drawCenteredString(fontRenderer, name, width / 2, 15, 0xFFFFFF);
 		
 		if (feed != null) {
 			int i = 0;
@@ -188,7 +188,7 @@ public class GuiContact extends GuiScreen {
 		showChatter(player, player.currentWindowId, id, name);
 	}	
 	
-	public static void showChatter(EntityPlayerMP player, int windowId, String id, String contactName) {
+	public static void showChatter(EntityPlayerMP player, int windowId, String id, String name) {
         try
         {
             List<ChatterEntry> chatterEntries = ChatterEntry.makeEntries(Forcecraft.instance.client.getFeed(id));
@@ -197,7 +197,7 @@ public class GuiContact extends GuiScreen {
             ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
             os.writeInt(windowId);
             os.writeObject(id);
-            os.writeObject(contactName);
+            os.writeObject(name);
             os.writeObject(chatterEntries);
             player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CHATTER_CHANNEL, bytearrayoutputstream.toByteArray()));
         }

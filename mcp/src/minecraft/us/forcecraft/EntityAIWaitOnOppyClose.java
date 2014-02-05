@@ -5,7 +5,7 @@ import net.minecraft.server.MinecraftServer;
 
 public class EntityAIWaitOnOppyClose extends EntityAIBase {
 	EntityContact contact;
-	private static final long WAIT_TIME = 10000; // milliseconds 
+	private static final long WAIT_TIME = 30000; // milliseconds 
 	
 	EntityAIWaitOnOppyClose(EntityContact contact) {
 		this.contact = contact;
