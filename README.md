@@ -28,8 +28,8 @@ Running the mod
 
 ### Pre-requisites
 
-* [Minecraft](https://minecraft.net/) 1.6.4
-* [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 9.11.1.953 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.6.4-9.11.1.953/forge-1.6.4-9.11.1.953-installer.jar) and run it to create a Forge profile in the Minecraft launcher.
+* [Minecraft](https://minecraft.net/) 1.6.4. [Download the Minecraft Launcher](https://minecraft.net/download), edit your profile, and select version 1.6.4.
+* [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 9.11.1.953 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.6.4-9.11.1.953/forge-1.6.4-9.11.1.953-installer.jar) and run it (select 'Install Client') to create a Forge profile in the Minecraft launcher. Select the Forge profile.
 * [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.1.8.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
 * A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
