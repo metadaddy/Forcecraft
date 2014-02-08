@@ -1,3 +1,8 @@
+0.1.8
+-----
+
+* Better fix for falling out of world issue
+
 0.1.7
 -----
 
