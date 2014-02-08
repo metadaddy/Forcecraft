@@ -65,7 +65,8 @@ public class CommandLogin extends CommandBase {
 			
 			if (player.dimension != Forcecraft.dimensionId){
 				player.addChatMessage("Teleporting to Forcecraft dimension");
-				transferPlayerToDimension(player, Forcecraft.dimensionId, Forcecraft.instance.getDefaultTeleporter());
+				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, 
+						Forcecraft.dimensionId, Forcecraft.instance.getDefaultTeleporter());
 			}
 		}
 	}
@@ -75,40 +76,4 @@ public class CommandLogin extends CommandBase {
 		// TODO Auto-generated method stub
 		return "/login";
 	}
-	
-	// This is essentially a clone of ServerConfigurationManager.transferPlayerToDimension, 
-	// with a call to MinecraftServer.tick() added to avoid a race condition. 
-    public void transferPlayerToDimension(EntityPlayerMP player, int dimension, Teleporter teleporter)
-    {
-    	MinecraftServer mcServer = player.mcServer;
-    	ServerConfigurationManager scm = mcServer.getConfigurationManager();
-        int j = player.dimension;
-        WorldServer worldserver = mcServer.worldServerForDimension(player.dimension);
-        player.dimension = dimension;
-        WorldServer worldserver1 = mcServer.worldServerForDimension(player.dimension);
-        player.playerNetServerHandler.sendPacketToPlayer(new Packet9Respawn(player.dimension, (byte)player.worldObj.difficultySetting, worldserver1.getWorldInfo().getTerrainType(), worldserver1.getHeight(), player.theItemInWorldManager.getGameType()));
-        worldserver.removePlayerEntityDangerously(player);
-        player.isDead = false;
-        scm.transferEntityToWorld(player, j, worldserver, worldserver1, teleporter);
-        scm.func_72375_a(player, worldserver);
-        
-        // This is here because, otherwise, on the next tick, the client is unpaused, but the server
-        // doesn't know it yet, so the server saves the world while the client is waiting for blocks,
-        // resulting in the player falling out of the world.
-        mcServer.tick();
-        
-        player.playerNetServerHandler.setPlayerLocation(player.posX, player.posY, player.posZ, player.rotationYaw, player.rotationPitch);
-        player.theItemInWorldManager.setWorld(worldserver1);
-        scm.updateTimeAndWeatherForPlayer(player, worldserver1);
-        scm.syncPlayerInventory(player);
-        Iterator iterator = player.getActivePotionEffects().iterator();
-
-        while (iterator.hasNext())
-        {
-            PotionEffect potioneffect = (PotionEffect)iterator.next();
-            player.playerNetServerHandler.sendPacketToPlayer(new Packet41EntityEffect(player.entityId, potioneffect));
-        }
-
-        GameRegistry.onPlayerChangedDimension(player);
-    }
 }

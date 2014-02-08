@@ -24,8 +24,13 @@ public class ForcecraftTeleporter extends Teleporter
     {
     	// Do almost nothing - we don't actually want to create a portal!
     	if (par1Entity.dimension == Forcecraft.dimensionId) {
-	    	par1Entity.setLocationAndAngles(worldServerInstance.getSpawnPoint().posX, worldServerInstance.getSpawnPoint().posY, 
-	        		worldServerInstance.getSpawnPoint().posZ, par1Entity.rotationYaw, par1Entity.rotationPitch);
+    		ChunkCoordinates spawnPoint = worldServerInstance.getSpawnPoint();
+    		
+    		// Ensure player spawns above ground
+    		spawnPoint.posY++;
+    		
+	    	par1Entity.setLocationAndAngles(spawnPoint.posX, spawnPoint.posY, spawnPoint.posZ, 
+	    			par1Entity.rotationYaw, par1Entity.rotationPitch);
     	} else {
     		EntityPlayerMP player = (EntityPlayerMP)par1Entity;
     		WorldServer worldServer = player.mcServer.worldServerForDimension(par1Entity.dimension);
