@@ -319,9 +319,11 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
+	            int maxHeight = (255 - Forcecraft.groundLevel) / STORY_HEIGHT; // Can't build above y = 255
 		    	try {
 					oppys = acct.getNode("Opportunities", "records").getElements();
 		            height = Math.max(1, oppys.size());
+		            height = Math.min(height, maxHeight);
 	    		} catch (IllegalArgumentException iae) {
 	    			// No data
 	    		}
@@ -383,14 +385,19 @@ public class ForcecraftGenerator implements IWorldGenerator {
 		}
 		
 		int wallBlock = (amount >= 100000) ? Block.stoneBrick.blockID: Block.stone.blockID;
+		int nstages = stages.size();
+		int leverstart = (10 - nstages) / 2; // Center levers on wall - ASSUMPTION - 10 or fewer stages!
+		int leverend = leverstart + nstages + 1;
         
 		// x, y, x are relative to lower front right corner of floor
     	for (int x = 0; x < 12; x++) {
         	for (int y = 0; y < STORY_HEIGHT; y++) {
 	    		for (int z = 0; z < 12; z++) {
-        			int metadata = 0; 
+        			int metadata = 0;
         			
         			p = i+x; q = j+y; r = k+z;
+        			
+        			int stage = leverend - z - 1;
 	    			
 	        		if (x == 0 || x == 11 || z == 0 || z == 11) { // Walls
 	        			if ((y == 2 || y == 3) && // Window height
@@ -409,13 +416,13 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	        					metadata = 0x1; // face north when closed
 	        				}
 	        				receiver.setBlock(p, q, r, Block.doorWood.blockID, metadata, 2);
-	        			} else if (oppy != null && y==3 && x == 0 && z > 0 && z < 11) { // Stage Block
-		    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
+	        			} else if (oppy != null && y==3 && x == 0 && z > leverstart && z < leverend) { // Stage Block
+	        				String label = stages.get(stage).getStringValue("label");
+		    				if (oppy.getStringValue("StageName").equals(label)) {
 		    					metadata = 0x1; // Block is 'on'
 		    				}
 		    				receiver.setBlock(p, q, r, Forcecraft.stageBlockId, metadata, 2);
-		    				receiver.setStageEntity(p, q, r, oppy.getStringValue("Id"), 
-		    	    				stages.get(10-z).getStringValue("label"));
+		    				receiver.setStageEntity(p, q, r, oppy.getStringValue("Id"), label);
 		    			} else {
 		    				receiver.setBlock(p, q, r, wallBlock, 0, 2);
 		    			}
@@ -432,12 +439,12 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    					metadata = 11; // blue carpet, otherwise white carpet
 	    				}
 	    				receiver.setBlock(p, q, r, Block.carpet.blockID, metadata, 2);
-	    			} else if (oppy != null && y==2 && x == 1 && z > 0 && z < 11) { // Stage sign
+	    			} else if (oppy != null && y==2 && x == 1 && z > leverstart && z < leverend) { // Stage sign
 	    				receiver.setBlock(p, q, r, Block.signWall.blockID, 5 /* Face east */, 2);
-	    				receiver.setSignEntity(p, q, r, splitIntoLines(stages.get(10-z).getStringValue("label"), 15, 4));
-	    			} else if (oppy != null && y==3 && x == 1 && z > 0 && z < 11) { // Stage lever
+	    				receiver.setSignEntity(p, q, r, splitIntoLines(stages.get(stage).getStringValue("label"), 15, 4));
+	    			} else if (oppy != null && y==3 && x == 1 && z > leverstart && z < leverend) { // Stage lever
 	    				metadata = 0x1; // Face east
-	    				if (oppy.getStringValue("StageName").equals(stages.get(10-z).getStringValue("label"))) {
+	    				if (oppy.getStringValue("StageName").equals(stages.get(stage).getStringValue("label"))) {
 	    					metadata |= 0x8; // Lever is 'on'
 	    				}
 	    				receiver.setBlock(p, q, r, Block.lever.blockID, metadata, 2);
