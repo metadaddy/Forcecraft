@@ -319,9 +319,11 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
+	            int maxHeight = (255 - Forcecraft.groundLevel) / STORY_HEIGHT; // Can't build above y = 255
 		    	try {
 					oppys = acct.getNode("Opportunities", "records").getElements();
 		            height = Math.max(1, oppys.size());
+		            height = Math.min(height, maxHeight);
 	    		} catch (IllegalArgumentException iae) {
 	    			// No data
 	    		}
