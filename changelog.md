@@ -1,3 +1,9 @@
+0.1.9
+-----
+
+* Fix for crash using orgs with fewer than 10 opportunity stages
+* Fix for crash with accounts with more than 49 opportunities
+
 0.1.8
 -----
 
