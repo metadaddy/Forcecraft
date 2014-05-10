@@ -20,27 +20,17 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerAboutToStartEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkMod.SidedPacketHandler;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.common.registry.TickRegistry;
 import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.9")
-@NetworkMod(clientSideRequired=true, 
-	clientPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ClientPacketHandler.class), 
-	serverPacketHandlerSpec = @SidedPacketHandler(channels = { Forcecraft.CHATTER_CHANNEL }, packetHandler = ServerPacketHandler.class)) 
 public class Forcecraft {
 	// Mod constants
 	public static final String FORCECRAFT = "Forcecraft";
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
-	public static final int STAGE_BLOCK_ID_DEFAULT = 3500;
-	public static int stageBlockId = STAGE_BLOCK_ID_DEFAULT;
-	public static final int CHATTER_SIGN_BLOCK_ID_DEFAULT = 3501;
-	public static int chatterSignBlockId = CHATTER_SIGN_BLOCK_ID_DEFAULT;
 	
 	public static final String STAGE_BLOCK_NAME = "stage";
 	public static final String CHATTER_SIGN_BLOCK_NAME = "chatterSign";
@@ -73,8 +63,9 @@ public class Forcecraft {
 	static Block chatterSignBlock;
 	static Block stageBlock;
 	
-	public ForcecraftTickHandler tickHandler = new ForcecraftTickHandler();
 	public ForcecraftGenerator generator = new ForcecraftGenerator();
+	
+	public PacketPipeline packetPipeline = new PacketPipeline();
 	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event)
@@ -94,42 +85,42 @@ public class Forcecraft {
 		ConfigHandler.init(event.getSuggestedConfigurationFile());
 		
 		// StageBlock is a special stone block associated with an opportunity stage
-		stageBlock = new StageBlock(stageBlockId, Material.rock)
+		stageBlock = new StageBlock(Material.rock)
         	.setHardness(0.5F)
-        	.setStepSound(Block.soundStoneFootstep)
-        	.setUnlocalizedName(STAGE_BLOCK_NAME)
+        	.setStepSound(Block.soundTypeStone)
+        	.setBlockName(STAGE_BLOCK_NAME)
         	.setCreativeTab(CreativeTabs.tabBlock)
-        	.setTextureName("stone");
+        	.setBlockTextureName("stone")
+        	;
 		LanguageRegistry.instance().addStringLocalization(STAGE_BLOCK_NAME, "en_US",  "Stage");
         GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
         GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
         
 		// BlockChatterSign is a special sign block associated with an account
-		chatterSignBlock = new BlockChatterSign(chatterSignBlockId, TileEntityChatterSign.class, false)
+		chatterSignBlock = new BlockChatterSign(TileEntityChatterSign.class, false)
         	.setHardness(1.0F)
-        	.setStepSound(Block.soundWoodFootstep)
-        	.setUnlocalizedName("sign");
+        	.setStepSound(Block.soundTypeWood)
+        	.setBlockName("sign");
 		LanguageRegistry.instance().addStringLocalization(CHATTER_SIGN_BLOCK_NAME, "en_US",  "Account Sign");
-        GameRegistry.registerBlock(stageBlock, CHATTER_SIGN_BLOCK_NAME);        
+        GameRegistry.registerBlock(chatterSignBlock, CHATTER_SIGN_BLOCK_NAME);
         GameRegistry.registerTileEntity(TileEntityChatterSign.class, CHATTER_SIGN_BLOCK_NAME);
-        
-        TickRegistry.registerTickHandler(tickHandler, Side.SERVER);
 	}
 
 	@EventHandler
 	public void load(FMLInitializationEvent event) {
 		proxy.registerRenderers();
 		
-		GameRegistry.registerWorldGenerator(generator);
+		GameRegistry.registerWorldGenerator(generator, 1);
 		
 		EntityRegistry.registerGlobalEntityID(EntityContact.class, "Contact", EntityRegistry.findGlobalUniqueEntityId());
 		DimensionManager.registerProviderType(dimensionId, ForcecraftWorldProvider.class, false);
 		DimensionManager.registerDimension(dimensionId, dimensionId);
+		packetPipeline.initialize();
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		// Stub Method
+		packetPipeline.postInitialize();
 	}
 	
     public Teleporter getDefaultTeleporter()

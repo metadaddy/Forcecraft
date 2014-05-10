@@ -10,14 +10,14 @@ import java.util.Random;
 
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.ai.EntityAIFollowGolem;
-import net.minecraft.entity.ai.EntityAITaskEntry;
+import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.ai.EntityAIVillagerMate;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.world.World;
 
 public class EntityContact extends EntityVillager {
@@ -47,7 +47,7 @@ public class EntityContact extends EntityVillager {
 	
 	private EntityAIBase findTask(Class taskClass) {
 		for (Object o : tasks.taskEntries) {
-			EntityAITaskEntry taskEntry = (EntityAITaskEntry)o;
+			EntityAITasks.EntityAITaskEntry taskEntry = (EntityAITasks.EntityAITaskEntry)o;
 			if (taskEntry.action.getClass().equals(taskClass)) {
 				return taskEntry.action;
 			}
@@ -92,30 +92,30 @@ public class EntityContact extends EntityVillager {
         addToContactMap();
     }
     
-	private static int[] treasureItems = {
-		Item.coal.itemID,		// 1
-		Item.ingotIron.itemID,  // 10 
-		Item.ingotGold.itemID,  // 100
-		Item.redstone.itemID,   // 1000
-		Item.glowstone.itemID,  // 10000
-		Item.emerald.itemID,    // 100000
-		Item.diamond.itemID     // 1000000
+	private static Item[] treasureItems = {
+		Items.coal,		      // 1
+		Items.iron_ingot,     // 10 
+		Items.gold_ingot,     // 100
+		Items.redstone,       // 1000
+		Items.glowstone_dust, // 10000
+		Items.emerald,        // 100000
+		Items.diamond         // 1000000
 	};
 	
-	public static List<int[]> getTreasure(double amount) {
+	public static List<Object[]> getTreasure(double amount) {
 		int a = (int)amount, n;
-		List<int[]> l = new ArrayList<int[]>();
+		List<Object[]> l = new ArrayList<Object[]>();
 		
 		for (int i = 0; (i < (treasureItems.length - 1) && a > 0); i++) {
 			n = a % 10;
 			if (n > 0) {
-				l.add(new int[]{treasureItems[i], n});
+				l.add(new Object[]{treasureItems[i], n});
 			}
 			a /= 10;
 		}
 		
 		if (a > 0) {
-			l.add(new int[]{treasureItems[treasureItems.length - 1], a});
+			l.add(new Object[]{treasureItems[treasureItems.length - 1], a});
 		}
 		
 		return l;

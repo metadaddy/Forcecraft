@@ -1,16 +1,31 @@
 .DS_Store
+.classpath
+.gradle/
+.project
+.settings/
+CREDITS-fml.txt
+LICENSE-fml.txt
 MinecraftForge-Changelog.txt
 MinecraftForge-Credits.txt
 MinecraftForge-License.txt
 Paulscode IBXM Library License.txt
 Paulscode SoundSystem CodecIBXM License.txt
 README-MinecraftForge.txt
+README.txt
+bin/
+build.gradle
+build/
 client/
 common/
+eclipse/
 fml/
+forge-1.7.2-10.12.1.1060-changelog.txt
 forge.py
 forge.pyc
 forgeversion.properties
+gradle/
+gradlew
+gradlew.bat
 install.cmd
 install.py
 install.sh

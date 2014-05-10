@@ -5,6 +5,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import argo.jdom.JdomParser;
 
 public class CommandLogout extends CommandBase {
@@ -23,7 +24,7 @@ public class CommandLogout extends CommandBase {
 			EntityPlayerMP player = (EntityPlayerMP)icommandsender;
 			
 			if (player.dimension == Forcecraft.dimensionId){
-				player.addChatMessage("Teleporting from Forcecraft dimension");
+				player.addChatMessage(new ChatComponentText("Teleporting from Forcecraft dimension"));
 				player.mcServer.getConfigurationManager().transferPlayerToDimension(player,	0, 
 						Forcecraft.instance.getDefaultTeleporter());
 			}					

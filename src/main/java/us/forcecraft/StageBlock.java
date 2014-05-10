@@ -5,21 +5,22 @@ import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public class StageBlock extends BlockContainer
 {
-	public StageBlock (int id, Material material) 
+	public StageBlock (Material material) 
 	{
-		super(id, material);
+		super(material);
 	}
 	
     /**
      * Returns a new instance of a block's tile entity class. Called on placing the block.
      */
-    public TileEntity createNewTileEntity(World world)
+	@Override
+    public TileEntity createNewTileEntity(World world, int var2)
     {
         return new TileEntityStageBlock();
     }
@@ -43,7 +44,7 @@ public class StageBlock extends BlockContainer
                 // Go along the row clearing the other levers - this is a bit dodgy -
                 // it relies on knowledge of the lever layout!
                 int x = par2 + 1, y = par3, z = par4 + 1;
-                while (world.getBlockId(x, y, z) == Block.lever.blockID) {
+                while (world.getBlock(x, y, z) == Blocks.lever) {
                 	// Turn off lever
                 	int metadata = world.getBlockMetadata(x, y, z);
                 	if ((metadata & 0x8) != 0) {
@@ -57,7 +58,7 @@ public class StageBlock extends BlockContainer
                 	z++;
                 }
                 z = par4 - 1;
-                while (world.getBlockId(x, y, z) == Block.lever.blockID) {
+                while (world.getBlock(x, y, z) == Blocks.lever) {
                 	// Turn off lever
                 	int metadata = world.getBlockMetadata(x, y, z);
                 	if ((metadata & 0x8) != 0) {
@@ -73,7 +74,7 @@ public class StageBlock extends BlockContainer
                 // Don't schedule an update if we're processing a message from Salesforce -
                 // don't want a streaming update to cause a post back to Salesforce!
                 if (!OpportunityListener.inMessage) {
-                	world.scheduleBlockUpdate(par2, par3, par4, this.blockID, this.tickRate(world));
+                	world.scheduleBlockUpdate(par2, par3, par4, this, this.tickRate(world));
                 }
             }
             else if (!hasPower && isAlreadyOn)
@@ -92,7 +93,7 @@ public class StageBlock extends BlockContainer
      */
     public void updateTick(World world, int par2, int par3, int par4, Random par5Random)
     {
-        TileEntity tileentity = world.getBlockTileEntity(par2, par3, par4);
+        TileEntity tileentity = world.getTileEntity(par2, par3, par4);
 
         if (tileentity != null && tileentity instanceof TileEntityStageBlock)
         {

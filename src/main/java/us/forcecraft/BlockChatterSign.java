@@ -7,8 +7,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
 public class BlockChatterSign extends BlockSign {
-	public BlockChatterSign(int blockID, Class signEntityClass, boolean isFreestanding) {
-		super(blockID, signEntityClass, isFreestanding);
+	public BlockChatterSign(Class signEntityClass, boolean isFreestanding) {
+		super(signEntityClass, isFreestanding);
 	}
 	
     /**
@@ -23,7 +23,7 @@ public class BlockChatterSign extends BlockSign {
     {
         if (!world.isRemote)
         {
-            TileEntity tileentity = world.getBlockTileEntity(par2, par3, par4);
+            TileEntity tileentity = world.getTileEntity(par2, par3, par4);
 
             if (tileentity != null && tileentity instanceof TileEntityChatterSign)
             {
