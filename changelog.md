@@ -1,3 +1,8 @@
+0.2.0
+-----
+
+* Port to Minecraft 1.7.2, Minecraft Forge Build 1.7.2-10.12.0.1060
+
 0.1.9
 -----
 

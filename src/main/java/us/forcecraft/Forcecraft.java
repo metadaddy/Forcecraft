@@ -23,12 +23,14 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.relauncher.Side;
 
-@Mod(modid=Forcecraft.FORCECRAFT, name=Forcecraft.FORCECRAFT, version="0.1.9")
+@Mod(modid=Forcecraft.FORCECRAFT_ID, name=Forcecraft.FORCECRAFT, version=Forcecraft.VERSION)
 public class Forcecraft {
 	// Mod constants
+	public static final String FORCECRAFT_ID = "forcecraft";
 	public static final String FORCECRAFT = "Forcecraft";
+	public static final String VERSION = "0.2.0";
+	
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
 	
@@ -131,6 +133,11 @@ public class Forcecraft {
 	@EventHandler
 	public void aboutToStart(FMLServerAboutToStartEvent event)
 	{
+		// Strange behavior in latest Forge
+		if (Forcecraft.instance == null) {
+			Forcecraft.instance = this;
+		}
+		
 		try {
 			if (client == null) {
 				client = new ForceRestClient();
