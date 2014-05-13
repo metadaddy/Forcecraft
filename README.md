@@ -95,7 +95,7 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 
     gradle build
 
-The build process creates `build/distributions/Forcecraft-1.7.2-0.2.0-mod.jar`. This is an 'UberJar', including all the mod's dependencies, packaged so that Forge will load it correctly.
+The build process creates `build/distributions/Forcecraft-1.7.2-0.2.0-mod.jar`. This is an [UberJar](http://stackoverflow.com/a/11947093/33905) including all the mod's dependencies, packaged so that Forge will load it correctly.
 
 You should be able to drop this into the mods directory to play the mod with Minecraft + Forge.
 
