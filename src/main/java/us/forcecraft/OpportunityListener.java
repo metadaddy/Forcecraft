@@ -6,8 +6,11 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
@@ -95,10 +98,11 @@ public class OpportunityListener implements MessageListener {
 				TileEntityStageBlock t = TileEntityStageBlock.getStageBlock(oppyId, stage);
 				// If the lever for this oppy/stage is 'off'...
 				int leverX = t.xCoord+1;
-				if ((t.worldObj.getBlockMetadata(leverX, t.yCoord, t.zCoord) & 0x8) == 0) {
+				World world = t.getWorldObj();
+				if ((world.getBlockMetadata(leverX, t.yCoord, t.zCoord) & 0x8) == 0) {
 					// Throw the lever to 'on', setting the current 'on' lever off...
-			        Block block = Block.blocksList[t.worldObj.getBlockId(leverX, t.yCoord, t.zCoord)];
-					block.onBlockActivated(t.worldObj, leverX, t.yCoord, t.zCoord, null, 0, 0.0F, 0.0F, 0.0F);
+			        Block block = world.getBlock(leverX, t.yCoord, t.zCoord);
+					block.onBlockActivated(world, leverX, t.yCoord, t.zCoord, null, 0, 0.0F, 0.0F, 0.0F);
 				}
 				
 				if (MinecraftServer.getServer().getConfigurationManager().playerEntityList.size() == 0) {
@@ -111,7 +115,7 @@ public class OpportunityListener implements MessageListener {
 				
 				if (stage.equals("Closed Won")) {					
 					String post = "Congratulations! Opportunity closed: " + oppyName + ", for $"+amount;
-					player.addChatMessage(post);
+					player.addChatMessage(new ChatComponentText(post));
 					
 					List<JsonNode> records = Forcecraft.instance.accounts.getNode("records").getElements();
 					for (int i = 0; i < records.size(); i++) {
@@ -132,9 +136,9 @@ public class OpportunityListener implements MessageListener {
 								entityContact.setOppyCloseTime(MinecraftServer.getSystemTimeMillis());
 								entityContact.setPositionAndUpdate(pos.xCoord, pos.yCoord, pos.zCoord);
 																								
-								List<int[]> items = EntityContact.getTreasure(Double.valueOf(amount));
+								List<Object[]> items = EntityContact.getTreasure(Double.valueOf(amount));
 								for (int j = 0; j < items.size(); j++) {
-									entityContact.dropItem(items.get(j)[0], items.get(j)[1]);								
+									entityContact.dropItem((Item)items.get(j)[0], (Integer)items.get(j)[1]);								
 								}
 								
 								Forcecraft.instance.client.postToChatter(entityContact.id, post);
@@ -143,7 +147,7 @@ public class OpportunityListener implements MessageListener {
 						}
 					}
 				} else if (stage.equals("Closed Lost")) {
-					player.addChatMessage("Opportunity lost: " + oppyName);
+					player.addChatMessage(new ChatComponentText("Opportunity lost: " + oppyName));
 					
 		            WorldServer worldserver = MinecraftServer.getServer().worldServers[0];		            
 		            WorldInfo worldinfo = worldserver.getWorldInfo();

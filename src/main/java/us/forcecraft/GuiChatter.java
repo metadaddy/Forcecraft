@@ -6,11 +6,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.packet.Packet250CustomPayload;
 
 import org.lwjgl.input.Keyboard;
 
@@ -22,7 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class GuiChatter extends GuiScreen {
-	static class ChatterEntry implements Serializable {
+	public static class ChatterEntry implements Serializable {
 		String name;
 		String text;
 		String date;
@@ -65,6 +66,7 @@ public class GuiChatter extends GuiScreen {
 	private static final int MAX_CHATTER_CHARS = 80;
 	private GuiTextField textfield;
 	private int yInput;
+	private FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 
 	public GuiChatter(int windowId, String id, String name, List<ChatterEntry> feed) {
 		this.windowId = windowId;
@@ -126,19 +128,8 @@ public class GuiChatter extends GuiScreen {
 	        	// TODO: Post to Chatter
 	        	System.out.println("POST!!! "+post);
 	        	
-	            try
-	            {
-	                ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-	                ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
-	                os.writeInt(windowId);
-	                os.writeObject(id);
-	                os.writeObject(post);
-	                mc.getNetHandler().addToSendQueue(new Packet250CustomPayload(Forcecraft.CHATTER_CHANNEL, bytearrayoutputstream.toByteArray()));
-	            }
-	            catch (Exception exception)
-	            {
-	                exception.printStackTrace();
-	            }
+	        	PacketChatterRequest packet = new PacketChatterRequest(windowId, id, post);
+	        	Forcecraft.instance.packetPipeline.sendToServer(packet);
 	        	
 	        	textfield.setText("");
 	        	((GuiButton)this.buttonList.get(0)).enabled = false;
@@ -182,28 +173,24 @@ public class GuiChatter extends GuiScreen {
 		this.feed = chatterEntries;
 	}
 	
+	// These should be on the server!
 	public static void displayChatterGUI(EntityPlayerMP player, String id, String name) {
-		player.incrementWindowID();
+		player.getNextWindowId();
 		
 		showChatter(player, player.currentWindowId, id, name);
 	}	
 	
 	public static void showChatter(EntityPlayerMP player, int windowId, String id, String name) {
-        try
-        {
-            List<ChatterEntry> chatterEntries = ChatterEntry.makeEntries(Forcecraft.instance.client.getFeed(id));
-			
-            ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-            ObjectOutputStream os = new ObjectOutputStream(bytearrayoutputstream);
-            os.writeInt(windowId);
-            os.writeObject(id);
-            os.writeObject(name);
-            os.writeObject(chatterEntries);
-            player.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload(Forcecraft.CHATTER_CHANNEL, bytearrayoutputstream.toByteArray()));
-        }
-        catch (Exception exception)
-        {
-            exception.printStackTrace();
-        }		
+			try {
+				List<ChatterEntry> chatterEntries = ChatterEntry.makeEntries(Forcecraft.instance.client.getFeed(id));
+	            PacketChatterResponse packet = new PacketChatterResponse(windowId, name, id, chatterEntries);
+	            Forcecraft.instance.packetPipeline.sendTo(packet, player);
+			} catch (InvalidSyntaxException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}            
 	}	
 }

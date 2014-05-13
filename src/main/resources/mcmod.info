@@ -1,0 +1,16 @@
+[
+{
+  "modid": "forcecraft",
+  "name": "Forcecraft",
+  "description": "Visualization of Salesforce Data in Minecraft.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/metadaddy-sfdc/Forcecraft",
+  "updateUrl": "",
+  "authors": ["metadaddy"],
+  "credits": "Pat Patterson",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
