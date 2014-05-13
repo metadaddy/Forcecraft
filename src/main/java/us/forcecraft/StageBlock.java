@@ -27,9 +27,10 @@ public class StageBlock extends BlockContainer
 
 	/**
 	 * Lets the block know when one of its neighbor changes. Doesn't know which neighbor changed (coordinates passed are
-	 * their own) Args: x, y, z, neighbor blockID
+	 * their own) Args: x, y, z, neighbor block
 	 */
-	public void onNeighborBlockChange(World world, int par2, int par3, int par4, int par5)
+	@Override
+	public void onNeighborBlockChange(World world, int par2, int par3, int par4, Block par5)
 	{
 		if (!world.isRemote)
 		{
