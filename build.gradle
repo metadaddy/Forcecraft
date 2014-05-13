@@ -9,10 +9,37 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+        jcenter()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
         classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
+    }
+}
+
+apply plugin: 'shadow'
+
+shadow {
+    classifier = 'mod'
+    artifactSet {
+        include 'us.forcecraft'
+    }
+    relocation {
+        pattern = 'argo'
+        shadedPattern = 'us.forcecraft.argo'
+    }
+    relocation {
+        pattern = 'org.apache'
+        shadedPattern = 'us.forcecraft.org.apache'
+    }
+    relocation {
+        pattern = 'org.cometd'
+        shadedPattern = 'us.forcecraft.org.cometd'
+    }
+    relocation {
+        pattern = 'org.eclipse'
+        shadedPattern = 'us.forcecraft.org.eclipse'
     }
 }
 
@@ -70,3 +97,5 @@ dependencies {
 jar {
     from { configurations.external.collect { it.isDirectory() ? it : zipTree(it) } }
 }
+
+build.dependsOn shadowJar
