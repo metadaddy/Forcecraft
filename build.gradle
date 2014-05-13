@@ -98,4 +98,9 @@ jar {
     from { configurations.external.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
-build.dependsOn shadowJar
+task depJar(type: Jar) {
+    classifier = 'dep'
+    from { configurations.external.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+build.dependsOn shadowJar, depJar

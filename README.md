@@ -105,7 +105,7 @@ Create the Eclipse project:
 
     gradle eclipse
 
-Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.0.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
+Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.0-dep.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
 
 Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/forge/eclipse/config/Forcecraft.cfg`.
 
