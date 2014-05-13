@@ -93,18 +93,20 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 
 ### Building the mod
 
-The easiest way to do this is to point an IDE at Forge, as documented in the [Forge installation process](http://www.minecraftforge.net/wiki/Installation/Source). I'll give instructions here for working with Eclipse.
+    gradle build
 
-In the Eclipse Project Explorer, open the Minecraft/lib folder, select all the listed jars, right click, and select 'Build Path | Add to Build Path'. Eclipse should now build the project with no errors (but possibly a handful of warnings).
+The build process creates `build/distributions/Forcecraft-1.7.2-0.2.0-mod.jar`. This is an 'UberJar', including all the mod's dependencies, packaged so that Forge will load it correctly.
 
-![Add jars to build path](http://metadaddy-sfdc.github.io/Forcecraft/AddJarsToBuildPath.png)
+You should be able to drop this into the mods directory to play the mod with Minecraft + Forge.
 
 ### Debugging the mod
 
-Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/forge/mcp/jars/config/Forcecraft.cfg`.
+Create the Eclipse project:
+
+    gradle eclipse
+
+Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.0.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
+
+Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/forge/eclipse/config/Forcecraft.cfg`.
 
 In Eclipse, you can use the 'Run' or 'Debug' button as appropriate.
-
-### Packaging the mod as a jar file
-
-In a Terminal window, navigate to `/forge/mcp` and type `./makemodjar.sh`. This will create Forcecraft-vx.x.x.jar in the /forge directory. You should be able to drop this into the mods directory to play the mod with Minecraft + Forge.
