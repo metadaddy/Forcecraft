@@ -16,7 +16,7 @@ public class ForcecraftWorldProvider extends WorldProvider {
 
 	public void registerWorldChunkManager()
 	{
-		this.worldChunkMgr = new WorldChunkManagerHell(BiomeGenBase.plains, 0.5F, 0.1F);
+		this.worldChunkMgr = new WorldChunkManagerHell(BiomeGenBase.plains, 0.5F);
 		this.dimensionId = Forcecraft.dimensionId;
 	}    
 
@@ -27,6 +27,6 @@ public class ForcecraftWorldProvider extends WorldProvider {
 
 	public ChunkCoordinates getSpawnPoint()
 	{
-		return new ChunkCoordinates(0, Forcecraft.groundLevel+1, 0);
+		return new ChunkCoordinates(1, Forcecraft.groundLevel+1, 1);
 	}
 }

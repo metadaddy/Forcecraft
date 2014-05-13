@@ -28,25 +28,15 @@ Running the mod
 
 ### Pre-requisites
 
-* [Minecraft](https://minecraft.net/) 1.6.4. [Download the Minecraft Launcher](https://minecraft.net/download), edit your profile, and select version 1.6.4.
-* [Minecraft Forge](http://files.minecraftforge.net/#1.6.4_builds) - I've been using 9.11.1.953 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.6.4-9.11.1.953/forge-1.6.4-9.11.1.953-installer.jar) and run it (select 'Install Client') to create a Forge profile in the Minecraft launcher. Select the Forge profile.
-* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.1.9.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
+* [Minecraft](https://minecraft.net/) 1.7.2. [Download the Minecraft Launcher](https://minecraft.net/download), edit your profile, and select version 1.7.2.
+* [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 10.12.1.1060 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.2-10.12.1.1060/forge-1.7.2-10.12.1.1060-installer.jar) and run it (select 'Install Client') to create a Forge profile in the Minecraft launcher. Select the Forge profile.
+* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.2.0.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
 * A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
 **IMPORTANT** You MUST create a configuration file with your account credentials so that Forcecraft can authenticate to Salesforce. Use this as a template:
 
 ```
 # Configuration file
-
-####################
-# block
-####################
-
-block {
-    I:stage=3500
-    I:chatterSign=3501
-}
-
 
 ####################
 # general
@@ -65,7 +55,7 @@ Edit this, and save it as
 * Mac: `~/Library/Application Support/minecraft/config/Forcecraft.cfg`
 * Windows: `%appdata%/.minecraft/config/Forcecraft.cfg`
 
-You MUST edit the username and password entries. If you are using a Salesforce sandbox, change the loginHost to test.salesforce.com. If you are using another mod that has already taken the 3500+ block IDs, you can also modify that.
+You MUST edit the username and password entries. If you are using a Salesforce sandbox, change the loginHost to test.salesforce.com.
 
 Run Minecraft and select the Forge profile. If all is well, you should see Forcecraft listed on the Mods screen. Start Minecraft as a single player and create a new world, in creative mode.
 
@@ -89,7 +79,7 @@ Building the mod
 
 ### Pre-requisites
 
-Minecraft, etc, as listed above, under 'Running the mod'. You will need the [Minecraft Forge 9.11.1.953 source distribution](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.6.4-9.11.1.953/forge-1.6.4-9.11.1.953-src.zip). Follow the [installation process](http://www.minecraftforge.net/w/index.php?title=Installation/Source&oldid=2082).
+Minecraft, etc, as listed above, under 'Running the mod'. You will need the [Minecraft Forge 10.12.1.1060 source distribution](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.2-10.12.1.1060/forge-1.7.2-10.12.1.1060-src.zip). Follow the [installation process](http://www.minecraftforge.net/wiki/Installation/Source).
 
 ### Getting the source
 
@@ -103,7 +93,7 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 
 ### Building the mod
 
-The easiest way to do this is to point an IDE at Forge, as documented in the [Forge installation process](http://www.minecraftforge.net/w/index.php?title=Installation/Source&oldid=2082). I'll give instructions here for working with Eclipse.
+The easiest way to do this is to point an IDE at Forge, as documented in the [Forge installation process](http://www.minecraftforge.net/wiki/Installation/Source). I'll give instructions here for working with Eclipse.
 
 In the Eclipse Project Explorer, open the Minecraft/lib folder, select all the listed jars, right click, and select 'Build Path | Add to Build Path'. Eclipse should now build the project with no errors (but possibly a handful of warnings).
 

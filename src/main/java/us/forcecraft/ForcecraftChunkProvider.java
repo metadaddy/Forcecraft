@@ -3,11 +3,10 @@ package us.forcecraft;
 import java.util.List;
 
 import argo.jdom.JsonNode;
-
 import cpw.mods.fml.common.Loader;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.EnumCreatureType;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.IProgressUpdate;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
@@ -32,7 +31,7 @@ public class ForcecraftChunkProvider implements IChunkProvider
      * Generates the shape of the terrain for the chunk though its all stone though the water is frozen if the
      * temperature is low enough
      */
-    public void generateTerrain(int chunkX, int chunkZ, byte[] blockArray)
+    public void generateTerrain(int chunkX, int chunkZ, Block[] blocks)
     {
     	for (int x = 0; x < 16; x++) {    		
         	for (int z = 0; z < 16; z++) {
@@ -40,14 +39,14 @@ public class ForcecraftChunkProvider implements IChunkProvider
             		int index = (x << 11) + (z << 7) + y; 
             				
             		if (y == 0) {
-            			blockArray[index] = (byte)Block.bedrock.blockID;
+            			blocks[index] = Blocks.bedrock;
             		} else if (y < Forcecraft.groundLevel) {
-            			blockArray[index] = (byte)Block.dirt.blockID;
+            			blocks[index] = Blocks.dirt;
             		} else if (y == Forcecraft.groundLevel) {
             			if (((chunkX % 4 == 0) && (x < 4)) || ((chunkZ % 4 == 0) && (z < 4))) {
-            				blockArray[index] = (byte)Block.gravel.blockID;
+            				blocks[index] = Blocks.gravel;
             			} else {
-            				blockArray[index] = (byte)Block.obsidian.blockID;
+            				blocks[index] = Blocks.obsidian;
             			}
             		}
             	}
@@ -69,10 +68,10 @@ public class ForcecraftChunkProvider implements IChunkProvider
      */
     public Chunk provideChunk(int par1, int par2)
     {
-        byte[] abyte = new byte[32768];
-        this.generateTerrain(par1, par2, abyte);
+        Block[] blocks = new Block[32768];
+        this.generateTerrain(par1, par2, blocks);
 
-        Chunk chunk = new Chunk(this.worldObj, abyte, par1, par2);
+        Chunk chunk = new Chunk(this.worldObj, blocks, par1, par2);
         byte[] abyte1 = chunk.getBiomeArray();
         
         chunk.generateSkylightMap();
@@ -144,7 +143,8 @@ public class ForcecraftChunkProvider implements IChunkProvider
     /**
      * Returns the location of the closest structure of the specified type. If not found returns null.
      */
-    public ChunkPosition findClosestStructure(World par1World, String par2Str, int par3, int par4, int par5)
+    // findClosestStructure
+    public ChunkPosition func_147416_a(World par1World, String par2Str, int par3, int par4, int par5)
     {
         return null;
     }

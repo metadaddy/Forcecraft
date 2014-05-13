@@ -10,11 +10,10 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.packet.Packet41EntityEffect;
-import net.minecraft.network.packet.Packet9Respawn;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.WorldServer;
 
@@ -64,7 +63,7 @@ public class CommandLogin extends CommandBase {
 			EntityPlayerMP player = (EntityPlayerMP)icommandsender;
 			
 			if (player.dimension != Forcecraft.dimensionId){
-				player.addChatMessage("Teleporting to Forcecraft dimension");
+				player.addChatMessage(new ChatComponentText("Teleporting to Forcecraft dimension"));
 				player.mcServer.getConfigurationManager().transferPlayerToDimension(player, 
 						Forcecraft.dimensionId, Forcecraft.instance.getDefaultTeleporter());
 			}
