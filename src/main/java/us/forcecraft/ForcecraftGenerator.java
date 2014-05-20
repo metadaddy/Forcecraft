@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
+
+import org.apache.logging.log4j.Level;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -321,7 +322,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 	    	JsonNode acct = records.get(n);
 	    	
 	    	if (!acct.getBooleanValue("IsDeleted")) {
-//	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
+	    		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Generating building for %s at (%d, %d)", acct.getStringValue("Name"), chunkX, chunkZ);
 				List<JsonNode> oppys = null;
 	            int height = 1;
 	            int maxHeight = (255 - Forcecraft.groundLevel) / STORY_HEIGHT; // Can't build above y = 255
