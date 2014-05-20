@@ -65,7 +65,7 @@ Once the game starts, you can type `/login` to teleport to the Forcecraft dimens
 
 **Note** - if you're demoing the mod, you probably want to stop the game from pausing when you switch away to the browser or another app. To do this, edit options.txt
 
-* If you're running via Eclipse (see below), it's at `<forge dir>/mcp/jars/options.txt`
+* If you're running via Eclipse (see below), it's at `<forge dir>/eclipse/options.txt`
 * If you're running 'standalone' on a Mac, it's at `~/Library/Application Support/minecraft/options.txt`. On Windows, it's at `%appdata%\.minecraft`.
 
 Look for the line that reads
@@ -107,6 +107,6 @@ Create the Eclipse project:
 
 Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.0-dep.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
 
-Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/forge/eclipse/config/Forcecraft.cfg`.
+Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/<forge dir>/eclipse/config/Forcecraft.cfg`.
 
 In Eclipse, you can use the 'Run' or 'Debug' button as appropriate.
