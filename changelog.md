@@ -1,3 +1,8 @@
+0.2.1
+-----
+
+* Listen for new 'Vegetable' records
+
 0.2.0
 -----
 

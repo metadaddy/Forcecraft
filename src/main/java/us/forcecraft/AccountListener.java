@@ -10,10 +10,12 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.WorldInfo;
 
+import org.apache.logging.log4j.Level;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.bayeux.client.ClientSessionChannel.MessageListener;
 
+import cpw.mods.fml.common.FMLLog;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.saj.InvalidSyntaxException;
@@ -26,7 +28,7 @@ public class AccountListener implements MessageListener {
 		inMessage = true;
 		
 		try {
-			System.out.println("Received Message: " + message);
+			FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Received Message: %s", message);
 			
 			JsonRootNode root = null;
 			try {
@@ -40,9 +42,9 @@ public class AccountListener implements MessageListener {
 			if (root.getStringValue("data", "event", "type").equals("created")) {
 				String id = sobject.getStringValue("Id");
 				String name = sobject.getStringValue("Name");
-				System.out.println("Account "+name+" created");
+				FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Account %s created", name);
 				
-				System.out.println("Reloading accounts");
+				FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Reloading accounts", name);
 				Forcecraft.instance.accounts = Forcecraft.instance.client.getAccounts();
 				
 				int n = 0;
@@ -52,7 +54,7 @@ public class AccountListener implements MessageListener {
 						int[] chunkCoords = ForcecraftGenerator.getPointDiscreteSpiral(n);
 						ChunkProviderServer cps = MinecraftServer.getServer().worldServerForDimension(Forcecraft.dimensionId).theChunkProviderServer;
 						if (cps.chunkExists(chunkCoords[0], chunkCoords[1])) {
-							System.out.println("Repopulating chunk at ("+chunkCoords[0]+", "+chunkCoords[1]+")");
+							FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Repopulating chunk at (%d, %d)", chunkCoords[0], chunkCoords[1]);
 							cps.loadChunk(chunkCoords[0], chunkCoords[1]).isTerrainPopulated = false;
 							cps.populate(cps, chunkCoords[0], chunkCoords[1]);
 						} // If the chunk doesn't exist, it will be current when it is created later

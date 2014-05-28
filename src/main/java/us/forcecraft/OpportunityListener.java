@@ -16,10 +16,12 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraft.world.storage.WorldInfo;
 
+import org.apache.logging.log4j.Level;
 import org.cometd.bayeux.Message;
 import org.cometd.bayeux.client.ClientSessionChannel;
 import org.cometd.bayeux.client.ClientSessionChannel.MessageListener;
 
+import cpw.mods.fml.common.FMLLog;
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.saj.InvalidSyntaxException;
@@ -32,7 +34,7 @@ public class OpportunityListener implements MessageListener {
 		inMessage = true;
 		
 		try {
-			System.out.println("Received Message: " + message);
+			FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Received Message: %s", message);
 			
 			JsonRootNode root = null;
 			try {
@@ -70,9 +72,9 @@ public class OpportunityListener implements MessageListener {
 						WorldServer worldserver = MinecraftServer.getServer().worldServerForDimension(Forcecraft.dimensionId);
 						ChunkProviderServer cps = worldserver.theChunkProviderServer;
 						if (cps.chunkExists(chunkCoords[0], chunkCoords[1])) {
-							System.out.println("Reloading accounts");
+							FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Reloading accounts");
 							Forcecraft.instance.accounts = Forcecraft.instance.client.getAccounts();
-							System.out.println("Repopulating chunk at ("+chunkCoords[0]+", "+chunkCoords[1]+")");
+							FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Repopulating chunk at (%d, %d)", chunkCoords[0], chunkCoords[1]);
 							Chunk chunk = cps.loadChunk(chunkCoords[0], chunkCoords[1]);
 							
 							// The opportunity doesn't seem to be on the Account yet...

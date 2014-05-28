@@ -13,11 +13,13 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.entity.player.EntityPlayerMP;
 
+import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 
 import argo.jdom.JsonNode;
 import argo.jdom.JsonRootNode;
 import argo.saj.InvalidSyntaxException;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -125,8 +127,7 @@ public class GuiChatter extends GuiScreen {
         	String post = textfield.getText().trim();
         	
         	if (post.length() > 0) { 
-	        	// TODO: Post to Chatter
-	        	System.out.println("POST!!! "+post);
+        		FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Posting to Chatter: %s", post);
 	        	
 	        	PacketChatterRequest packet = new PacketChatterRequest(windowId, id, post);
 	        	Forcecraft.instance.packetPipeline.sendToServer(packet);

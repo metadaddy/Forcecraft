@@ -92,13 +92,12 @@ public class Forcecraft {
         	.setStepSound(Block.soundTypeStone)
         	.setBlockName(STAGE_BLOCK_NAME)
         	.setCreativeTab(CreativeTabs.tabBlock)
-        	.setBlockTextureName("stone")
-        	;
+        	.setBlockTextureName("stone");
 		LanguageRegistry.instance().addStringLocalization(STAGE_BLOCK_NAME, "en_US",  "Stage");
         GameRegistry.registerBlock(stageBlock, STAGE_BLOCK_NAME);
         GameRegistry.registerTileEntity(TileEntityStageBlock.class, STAGE_BLOCK_NAME);
         
-		// BlockChatterSign is a special sign block associated with an account
+		// BlockChatterSign is a special sign block associated with an account or opportunity
 		chatterSignBlock = new BlockChatterSign(TileEntityChatterSign.class, false)
         	.setHardness(1.0F)
         	.setStepSound(Block.soundTypeWood)
@@ -151,13 +150,16 @@ public class Forcecraft {
 				accounts = client.getAccounts();
 				stages = client.getStages();
 				
-				// TODO - refactor
 				if (!client.streamingTopicExists(StreamingClient.OPPORTUNITY_TOPIC_NAME)) {
 					client.createStreamingTopic(StreamingClient.OPPORTUNITY_TOPIC_NAME, StreamingClient.OPPORTUNITY_TOPIC_QUERY);
 				}
 									
 				if (!client.streamingTopicExists(StreamingClient.ACCOUNT_TOPIC_NAME)) {
 					client.createStreamingTopic(StreamingClient.ACCOUNT_TOPIC_NAME, StreamingClient.ACCOUNT_TOPIC_QUERY);
+				}
+									
+				if (client.sObjectTypeExists("Vegetable__c") && !client.streamingTopicExists(StreamingClient.VEGETABLE_TOPIC_NAME)) {
+					client.createStreamingTopic(StreamingClient.VEGETABLE_TOPIC_NAME, StreamingClient.VEGETABLE_TOPIC_QUERY);
 				}
 									
 				StreamingClient.subscribe(client.oauth.getStringValue("instance_url"), 
