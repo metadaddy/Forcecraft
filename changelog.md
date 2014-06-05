@@ -1,3 +1,8 @@
+0.2.2
+-----
+
+* Fix for issue with shaded log4j
+
 0.2.1
 -----
 

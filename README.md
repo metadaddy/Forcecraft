@@ -37,7 +37,7 @@ Running the mod
 
 * [Minecraft](https://minecraft.net/) 1.7.2. [Download the Minecraft Launcher](https://minecraft.net/download), edit your profile, and select version 1.7.2.
 * [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 10.12.1.1060 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.2-10.12.1.1060/forge-1.7.2-10.12.1.1060-installer.jar) and run it (select 'Install Client') to create a Forge profile in the Minecraft launcher. Select the Forge profile.
-* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.2.1.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
+* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.2.2.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
 * A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
 **IMPORTANT** You MUST create a configuration file with your account credentials so that Forcecraft can authenticate to Salesforce. Use this as a template:
@@ -102,7 +102,7 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 
     gradle build
 
-The build process creates `build/distributions/Forcecraft-1.7.2-0.2.1-mod.jar`. This is an [uber-jar](http://stackoverflow.com/a/11947093/33905) including all the mod's dependencies, packaged so that Forge will load it correctly.
+The build process creates `build/distributions/Forcecraft-1.7.2-0.2.2-mod.jar`. This is an [uber-jar](http://stackoverflow.com/a/11947093/33905) including all the mod's dependencies, packaged so that Forge will load it correctly.
 
 You should be able to drop this into the mods directory to play the mod with Minecraft + Forge.
 
@@ -112,7 +112,7 @@ Create the Eclipse project:
 
     gradle eclipse
 
-Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.1-dep.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
+Build the mod jar (see above). In the Eclipse Project Explorer, open the `build/libs` folder, select `Forcecraft-1.7.2-0.2.2-dep.jar`, right click, and select 'Build Path | Add to Build Path'. This jar file contains all the dependencies that Eclipse needs.
 
 Follow the instructions in the 'Running the mod' section above to configure the mod, except that the configuration file needs to be at `/<forge dir>/eclipse/config/Forcecraft.cfg`.
 

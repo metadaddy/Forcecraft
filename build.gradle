@@ -30,8 +30,12 @@ shadow {
         shadedPattern = 'us.forcecraft.argo'
     }
     relocation {
-        pattern = 'org.apache'
-        shadedPattern = 'us.forcecraft.org.apache'
+        pattern = 'org.apache.http'
+        shadedPattern = 'us.forcecraft.org.apache.http'
+    }
+    relocation {
+        pattern = 'org.apache.commons'
+        shadedPattern = 'us.forcecraft.org.apache.commons'
     }
     relocation {
         pattern = 'org.cometd'
@@ -45,7 +49,7 @@ shadow {
 
 apply plugin: 'forge'
 
-version = "1.7.2-0.2.1"
+version = "1.7.2-0.2.2"
 group= "us.forcecraft" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "Forcecraft"
 

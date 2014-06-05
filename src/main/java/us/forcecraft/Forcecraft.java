@@ -24,12 +24,11 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid=Forcecraft.FORCECRAFT_ID, name=Forcecraft.FORCECRAFT, version=Forcecraft.VERSION)
+@Mod(modid=Forcecraft.FORCECRAFT_ID, name=Forcecraft.FORCECRAFT)
 public class Forcecraft {
 	// Mod constants
 	public static final String FORCECRAFT_ID = "forcecraft";
 	public static final String FORCECRAFT = "Forcecraft";
-	public static final String VERSION = "0.2.0";
 	
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
