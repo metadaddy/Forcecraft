@@ -386,7 +386,7 @@ public class ForcecraftGenerator implements IWorldGenerator {
 						z = (double)((chunkZ * 16) + ((i / (STORY_HEIGHT * 7)) % 8) + 6) + 0.5D;
 				entityContact.setLocationAndAngles(x, y, z, 0.0F, 0.0F);
 				entityContact.setCustomNameTag(contact.getStringValue("Name"));
-				FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Spawning contact %s at (%d, %d, %d)", entityContact.getCustomNameTag(), x, y, z);
+				FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Spawning contact %s at (%f, %f, %f)", entityContact.getCustomNameTag(), x, y, z);
 				world.spawnEntityInWorld(entityContact);
 			}
 		} catch (IllegalArgumentException iae) {
