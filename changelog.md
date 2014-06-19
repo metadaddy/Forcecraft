@@ -1,3 +1,8 @@
+0.2.3
+-----
+
+* Fixed log format issue that prevented contacts from spawning
+
 0.2.2
 -----
 
