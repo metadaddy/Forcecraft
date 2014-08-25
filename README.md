@@ -96,6 +96,7 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 	git init
 	git remote add origin https://github.com/metadaddy-sfdc/Forcecraft.git
 	git fetch
+	rm build.gradle src/main/resources/mcmod.info
 	git checkout -t origin/master
 
 ### Building the mod
