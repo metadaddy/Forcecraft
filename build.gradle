@@ -9,12 +9,14 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
-        jcenter()
+        flatDir {
+            dirs 'shadow'
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
         classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8.1'
     }
 }
 
