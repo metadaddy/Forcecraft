@@ -23,7 +23,7 @@ Take a look at the mod in action:
 
 [![YouTube video](http://img.youtube.com/vi/eb3GgM1o_8I/0.jpg)](http://www.youtube.com/watch?v=eb3GgM1o_8I)
 
-UPDATE (version 0.2.1) : if you define a custom object, `Vegetable`, in your Salesforce environment, the corresponding item will appear in the game when a record is created. The `Vegetable` object must include the following fields:
+<a name="update0.2.1"></a>UPDATE (version 0.2.1) : if you define a custom object, `Vegetable`, in your Salesforce environment, the corresponding item will appear in the game when a record is created. The `Vegetable` object must include the following fields:
 
 * A picklist field named `Type` with values `Flower`, `Carrot` and `Potato`
 * A number field named `Quantity`
