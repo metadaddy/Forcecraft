@@ -3,19 +3,19 @@ Forcecraft
 
 This Minecraft mod visualizes [Salesforce](https://www.salesforce.com/crm/) Accounts, Opportunities and Contacts. Forcecraft adds a new dimension to Minecraft, where each Account in your Salesforce environment (aka 'org') is represented by a building, comprising a level for each Opportunity associated with that Account.
 
-![Forcecraft](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft.png)
+![Forcecraft](http://metadaddy.github.io/Forcecraft/Forcecraft.png)
 
 Levers on each level represent and control the Opportunity Stage Name; updating an Opportunity's Stage Name outside Minecraft will cause the lever state to update within the Minecraft world, while throwing the lever in Minecraft will update the Opportunity's Stage Name.
 
-![Opportunity Levers](http://metadaddy-sfdc.github.io/Forcecraft/OpportunityLevers.png)
+![Opportunity Levers](http://metadaddy.github.io/Forcecraft/OpportunityLevers.png)
 
 Each Salesforce Contact is represented by a Villager-derived entity, with the Contact name shown as a custom name tag above the entity's head. 
 
-![Contact](http://metadaddy-sfdc.github.io/Forcecraft/Contact.png)
+![Contact](http://metadaddy.github.io/Forcecraft/Contact.png)
 
 Interacting with a Contact (right-click, by default) will show the Chatter feed for that Contact and allow you to post to the feed. Similarly, Account and Opportunity signs give access to the respective Chatter feeds.
 
-![Contact Feed](http://metadaddy-sfdc.github.io/Forcecraft/ContactFeed.png)
+![Contact Feed](http://metadaddy.github.io/Forcecraft/ContactFeed.png)
 
 If an Opportunity's Stage Name is updated to 'Closed Won', a Contact from the associated Account will teleport to the player and give the player items to the 'value' of the opportunity. If, on the other hand, an Opportunity's Stage Name is updated to 'Closed Lost', the weather will take a turn for the worse!
 
@@ -37,7 +37,7 @@ Running the mod
 
 * [Minecraft](https://minecraft.net/) 1.7.2. [Download the Minecraft Launcher](https://minecraft.net/download), edit your profile, and select version 1.7.2.
 * [Minecraft Forge](http://files.minecraftforge.net/) - I've been using 10.12.1.1060 - later versions *may* also work. Download the [Forge Installer](http://files.minecraftforge.net/maven/net/minecraftforge/forge/1.7.2-10.12.1.1060/forge-1.7.2-10.12.1.1060-installer.jar) and run it (select 'Install Client') to create a Forge profile in the Minecraft launcher. Select the Forge profile.
-* [The mod binary](http://metadaddy-sfdc.github.io/Forcecraft/Forcecraft-v0.2.3.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
+* [The mod binary](http://metadaddy.github.io/Forcecraft/Forcecraft-v0.2.3.jar) - Download it and drop it into the Minecraft mods directory. On a Mac, this is `~/Library/Application Support/minecraft/mods`; on Windows it is `%appdata%/.minecraft/mods`.
 * A Salesforce org. [Create a free Force.com Developer Edition](http://developer.force.com/join) if you are new to Salesforce and want to try out Forcecraft.
 
 **IMPORTANT** You MUST create a configuration file with your account credentials so that Forcecraft can authenticate to Salesforce. Use this as a template:
@@ -66,7 +66,7 @@ You MUST edit the username and password entries. If you are using a Salesforce s
 
 Run Minecraft and select the Forge profile. If all is well, you should see Forcecraft listed on the Mods screen. Start Minecraft as a single player and create a new world, in creative mode.
 
-![Create New World](http://metadaddy-sfdc.github.io/Forcecraft/CreateNewWorld.png)
+![Create New World](http://metadaddy.github.io/Forcecraft/CreateNewWorld.png)
 
 Once the game starts, you can type `/login` to teleport to the Forcecraft dimension. Type `/logout` to return to the default 'Overworld' dimension.
 
@@ -94,7 +94,7 @@ Fetch the Forcecraft repo into the Forge root directory (the `forge/` directory 
 
 	cd forge
 	git init
-	git remote add origin https://github.com/metadaddy-sfdc/Forcecraft.git
+	git remote add origin https://github.com/metadaddy/Forcecraft.git
 	git fetch
 	rm build.gradle src/main/resources/mcmod.info
 	git checkout -t origin/master
