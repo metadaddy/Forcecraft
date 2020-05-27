@@ -100,7 +100,7 @@ public class ForceRestClient {
 					"FROM Account "+
 					"ORDER BY CreatedDate";
 			HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/query?q="+URLEncoder.encode(query, "UTF-8"));
 
 			httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 
@@ -142,7 +142,7 @@ public class ForceRestClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/sobjects/Opportunity/describe");
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/sobjects/Opportunity/describe");
 
 			httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 
@@ -226,7 +226,7 @@ public class ForceRestClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/sobjects/Opportunity/"+id+"?_HttpMethod=PATCH");
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/sobjects/Opportunity/"+id+"?_HttpMethod=PATCH");
 
 			httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 			httppost.setEntity(new StringEntity(formatter.format(object(field("StageName", string(stage)))),
@@ -271,7 +271,7 @@ public class ForceRestClient {
 			FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Checking for SObject Type %s", typeName);
 
 			HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/sobjects/"+typeName);
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/sobjects/"+typeName);
 
 			httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 
@@ -316,7 +316,7 @@ public class ForceRestClient {
 
 			String query = "SELECT Id FROM PushTopic WHERE Name = '"+topicName+"'";
 			HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/query?q="+URLEncoder.encode(query, "UTF-8"));
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/query?q="+URLEncoder.encode(query, "UTF-8"));
 
 			httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 
@@ -359,13 +359,13 @@ public class ForceRestClient {
 			FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Creating PushTopic %s", topicName);
 
 			HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/sobjects/PushTopic");
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/sobjects/PushTopic");
 
 			httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 			JsonRootNode json = object(
 					field("Name", string(topicName)),
 					field("Query", string(topicQuery)),
-					field("ApiVersion", string(StreamingClient.API_VERSION))
+					field("ApiVersion", string(Forcecraft.SALESFORCE_API_VERSION))
 					);
 			httppost.setEntity(new StringEntity(formatter.format(json),
 					ContentType.create("application/json", Consts.UTF_8)));
@@ -409,7 +409,7 @@ public class ForceRestClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			HttpGet httpget = new HttpGet(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/chatter/feeds/record/"+recordId+"/feed-items");
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/chatter/feeds/record/"+recordId+"/feed-items");
 
 			httpget.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 
@@ -448,7 +448,7 @@ public class ForceRestClient {
 			FMLLog.log(Forcecraft.FORCECRAFT, Level.INFO, "Creating Chatter post");
 
 			HttpPost httppost = new HttpPost(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/chatter/feeds/record/"+recordId+"/feed-items");
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/chatter/feeds/record/"+recordId+"/feed-items");
 
 			httppost.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 			JsonRootNode json = object(
@@ -499,7 +499,7 @@ public class ForceRestClient {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
 			HttpDelete httpdelete = new HttpDelete(oauth.getStringValue("instance_url")+
-					"/services/data/v29.0/sobjects/"+objectType+"/"+recordId);
+					"/services/data/v" + Forcecraft.SALESFORCE_API_VERSION + "/sobjects/"+objectType+"/"+recordId);
 
 			httpdelete.addHeader("Authorization", "Bearer "+oauth.getStringValue("access_token"));
 

@@ -29,6 +29,7 @@ public class Forcecraft {
 	// Mod constants
 	public static final String FORCECRAFT_ID = "forcecraft";
 	public static final String FORCECRAFT = "Forcecraft";
+	public static final String SALESFORCE_API_VERSION = "48.0";
 	
 	public static final int DIMENSION_ID_DEFAULT = 7;
 	public static int dimensionId = DIMENSION_ID_DEFAULT;
